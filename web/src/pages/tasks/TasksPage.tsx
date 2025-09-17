@@ -136,7 +136,7 @@ const TasksPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
           <p className="text-gray-600 mt-1">
@@ -146,7 +146,7 @@ const TasksPage: React.FC = () => {
         
         <button
           onClick={openCreateTaskModal}
-          className="btn-primary inline-flex items-center"
+          className="btn-primary inline-flex items-center w-full sm:w-auto justify-center"
         >
           <Plus className="h-4 w-4 mr-2" />
           New Task
@@ -170,7 +170,7 @@ const TasksPage: React.FC = () => {
         {/* Filter Toggle */}
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className={`btn-secondary inline-flex items-center ${showFilters ? 'bg-blue-50 border-blue-200' : ''}`}
+          className={`btn-secondary inline-flex items-center w-full sm:w-auto justify-center ${showFilters ? 'bg-blue-50 border-blue-200' : ''}`}
         >
           <Filter className="h-4 w-4 mr-2" />
           Filters
@@ -181,7 +181,7 @@ const TasksPage: React.FC = () => {
           onClick={() => updateFilters({ 
             sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc' 
           })}
-          className="btn-secondary inline-flex items-center"
+          className="btn-secondary inline-flex items-center w-full sm:w-auto justify-center"
         >
           {filters.sortOrder === 'asc' ? 
             <SortAsc className="h-4 w-4 mr-2" /> : 
@@ -278,45 +278,82 @@ const TasksPage: React.FC = () => {
               key={task.id}
               className="card hover:shadow-lg transition-shadow duration-200"
             >
-              <div className="flex items-start justify-between">
-                {/* Task Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-3 mb-2">
-                    {/* Status Badge */}
-                    <span className={`${getStatusColor(task.status)} inline-flex items-center`}>
-                      {getStatusIcon(task.status)}
-                      <span className="ml-1">{formatStatus(task.status)}</span>
-                    </span>
-                    
-                    {/* Time Logged */}
-                    {task.total_minutes > 0 && (
-                      <span className="text-xs text-gray-500 flex items-center">
-                        <Timer className="h-3 w-3 mr-1" />
-                        {formatMinutes(task.total_minutes)}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">
-                    {task.title}
-                  </h3>
+              {/* Mobile Task Header */}
+              <div className="flex items-start justify-between mb-3 md:hidden">
+                <div className="flex items-center space-x-2">
+                  {/* Status Badge */}
+                  <span className={`${getStatusColor(task.status)} inline-flex items-center text-xs px-2 py-1`}>
+                    {getStatusIcon(task.status)}
+                    <span className="ml-1">{formatStatus(task.status)}</span>
+                  </span>
                   
-                  {task.description && (
-                    <p className="text-gray-600 text-sm mb-3">
-                      {task.description}
-                    </p>
+                  {/* Time Logged */}
+                  {task.total_minutes > 0 && (
+                    <span className="text-xs text-gray-500 flex items-center bg-gray-100 px-2 py-1 rounded">
+                      <Timer className="h-3 w-3 mr-1" />
+                      {formatMinutes(task.total_minutes)}
+                    </span>
                   )}
-
-                  <div className="flex items-center space-x-4 text-xs text-gray-500">
-                    <span>Created {getRelativeTime(task.created_at)}</span>
-                    {task.updated_at !== task.created_at && (
-                      <span>Updated {getRelativeTime(task.updated_at)}</span>
-                    )}
-                  </div>
                 </div>
-
-                {/* Actions */}
-                <div className="flex items-center space-x-2 ml-4">
+                
+                {/* Mobile Actions Menu */}
+                <div className="relative">
+                  <button
+                    onClick={() => setSelectedTask(selectedTask === task.id ? null : task.id)}
+                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <MoreVertical className="h-5 w-5" />
+                  </button>
+                  
+                  {selectedTask === task.id && (
+                    <div className="absolute right-0 top-6 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            openEditTaskModal(task);
+                            setSelectedTask(null);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          <Edit3 className="h-4 w-4 mr-2" />
+                          Edit Task
+                        </button>
+                        <button
+                          onClick={() => {
+                            openDeleteTaskModal(task.id, task.title);
+                            setSelectedTask(null);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Task
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Desktop Task Header */}
+              <div className="hidden md:flex items-start justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  {/* Status Badge */}
+                  <span className={`${getStatusColor(task.status)} inline-flex items-center`}>
+                    {getStatusIcon(task.status)}
+                    <span className="ml-1">{formatStatus(task.status)}</span>
+                  </span>
+                  
+                  {/* Time Logged */}
+                  {task.total_minutes > 0 && (
+                    <span className="text-xs text-gray-500 flex items-center">
+                      <Timer className="h-3 w-3 mr-1" />
+                      {formatMinutes(task.total_minutes)}
+                    </span>
+                  )}
+                </div>
+                
+                {/* Desktop Actions */}
+                <div className="flex items-center space-x-2">
                   {/* Status Navigation */}
                   <div className="flex items-center space-x-1">
                     {getPrevStatus(task.status) && (
@@ -394,6 +431,73 @@ const TasksPage: React.FC = () => {
                       </div>
                     )}
                   </div>
+                </div>
+              </div>
+              
+              {/* Task Content */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {task.title}
+                </h3>
+                
+                {task.description && (
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                    {task.description}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                  <span>Created {getRelativeTime(task.created_at)}</span>
+                  {task.updated_at !== task.created_at && (
+                    <span>• Updated {getRelativeTime(task.updated_at)}</span>
+                  )}
+                </div>
+              </div>
+              
+              {/* Mobile Actions - Status Navigation and Quick Time Log */}
+              <div className="mt-4 pt-4 border-t border-gray-100 md:hidden">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  {/* Status Navigation */}
+                  <div className="flex items-center space-x-2">
+                    {getPrevStatus(task.status) && (
+                      <button
+                        onClick={() => handleStatusChange(task.id, getPrevStatus(task.status)!)}
+                        className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                      >
+                        ← {formatStatus(getPrevStatus(task.status)!)}
+                      </button>
+                    )}
+                    
+                    {getNextStatus(task.status) && (
+                      <button
+                        onClick={() => handleStatusChange(task.id, getNextStatus(task.status)!)}
+                        className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                      >
+                        {formatStatus(getNextStatus(task.status)!)} →
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* Quick Time Log */}
+                  {task.status === 'in_progress' && (
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-gray-500">Quick log:</span>
+                      <div className="flex space-x-1">
+                        <button
+                          onClick={() => handleQuickTimeLog(task.id, 15)}
+                          className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                        >
+                          +15m
+                        </button>
+                        <button
+                          onClick={() => handleQuickTimeLog(task.id, 30)}
+                          className="px-2 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                        >
+                          +30m
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

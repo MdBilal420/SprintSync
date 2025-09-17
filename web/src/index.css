@@ -1,9 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import Google Fonts for modern typography */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* Base styles */
 @layer base {
@@ -27,12 +26,32 @@
     @apply bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 px-6 rounded-lg border border-gray-300 transition-all duration-200 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
   }
   
+  .btn-sm {
+    @apply py-2 px-4 text-sm;
+  }
+  
+  .btn-lg {
+    @apply py-4 px-8 text-lg;
+  }
+  
   .input-field {
     @apply border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white shadow-sm;
   }
   
+  .input-sm {
+    @apply px-3 py-2 text-sm;
+  }
+  
   .card {
     @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
+  }
+  
+  .card-sm {
+    @apply p-4;
+  }
+  
+  .card-lg {
+    @apply p-8;
   }
   
   .nav-link {
@@ -55,19 +74,118 @@
     @apply bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium;
   }
   
+  /* Responsive utility classes */
   .container-main {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
   
   .section-header {
-    @apply mb-8 text-center;
+    @apply mb-8;
   }
   
   .section-title {
-    @apply text-3xl md:text-4xl font-bold text-gray-900 mb-4;
+    @apply text-2xl font-bold text-gray-900 mb-2;
   }
   
   .section-subtitle {
-    @apply text-lg text-gray-600 max-w-2xl mx-auto;
+    @apply text-gray-600;
   }
+  
+  /* Layout Navigation Responsive Classes */
+  .nav-container {
+    @apply flex items-center justify-between h-16;
+  }
+  
+  .nav-brand {
+    @apply flex items-center space-x-4;
+  }
+  
+  .nav-links {
+    @apply flex items-center space-x-8;
+  }
+  
+  .nav-user {
+    @apply flex items-center space-x-4;
+  }
+  
+  /* Hidden classes for responsive design */
+  .hidden-mobile {
+    @apply hidden sm:block;
+  }
+  
+  .hidden-desktop {
+    @apply block sm:hidden;
+  }
+  
+  /* Modal responsive styles */
+  .modal-container {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50;
+  }
+  
+  .modal-content {
+    @apply bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col;
+  }
+  
+  .modal-header {
+    @apply flex items-center justify-between p-4 sm:p-6 border-b border-gray-200;
+  }
+  
+  .modal-body {
+    @apply flex-1 overflow-y-auto p-4 sm:p-6;
+  }
+  
+  .modal-footer {
+    @apply flex flex-col sm:flex-row items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200;
+  }
+  
+  /* Task item responsive styles */
+  .task-item {
+    @apply card hover:shadow-lg transition-shadow duration-200;
+  }
+  
+  .task-header-mobile {
+    @apply flex items-start justify-between mb-3 md:hidden;
+  }
+  
+  .task-header-desktop {
+    @apply hidden md:flex items-start justify-between mb-3;
+  }
+  
+  .task-content {
+    @apply flex-1 min-w-0;
+  }
+  
+  .task-mobile-actions {
+    @apply mt-4 pt-4 border-t border-gray-100 md:hidden;
+  }
+  
+  /* Responsive grid layouts */
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+  
+  .grid-responsive-4 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+  }
+  
+  /* Line clamp utilities */
+  /* Removed circular dependencies - these are provided by Tailwind CSS */
+  /* If you need custom line-clamp styles, use different class names */
+}
+
+/* Mobile menu styles */
+.mobile-menu {
+  @apply fixed inset-0 z-50 bg-white;
+}
+
+.mobile-menu-header {
+  @apply flex items-center justify-between p-4 border-b border-gray-200;
+}
+
+.mobile-menu-content {
+  @apply p-4;
+}
+
+.mobile-menu-footer {
+  @apply absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200;
 }
