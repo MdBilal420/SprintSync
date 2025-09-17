@@ -127,9 +127,9 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Edit Task</h2>
           <button
             onClick={handleClose}
@@ -140,7 +140,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="space-y-4">
             {/* Title */}
             <div>
@@ -200,7 +200,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
 
             {/* Time Tracking */}
             <div className="border-t border-gray-200 pt-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                 <h3 className="text-sm font-medium text-gray-700 flex items-center">
                   <Clock className="h-4 w-4 mr-1" />
                   Time Tracking
@@ -210,7 +210,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
                 </span>
               </div>
               
-              <div className="flex space-x-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="number"
                   min="1"
@@ -223,7 +223,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
                 <button
                   type="button"
                   onClick={handleAddTime}
-                  className="btn-secondary whitespace-nowrap"
+                  className="btn-secondary w-full sm:w-auto whitespace-nowrap"
                   disabled={isLoading || !timeToAdd.trim()}
                 >
                   Add Time
@@ -231,7 +231,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
               </div>
               
               {/* Quick time buttons */}
-              <div className="flex space-x-2 mt-2">
+              <div className="flex flex-wrap gap-2 mt-3">
                 {[15, 30, 60].map((minutes) => (
                   <button
                     key={minutes}
@@ -250,7 +250,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
               
               {/* AI Enhancement Button */}
               {aiAvailable && task && (
-                <div className="border-t border-gray-200 pt-3 mt-3">
+                <div className="border-t border-gray-200 pt-3 mt-4">
                   <button
                     type="button"
                     onClick={() => showNotification('info', 'AI enhancement suggestions coming in future updates!')}
@@ -264,33 +264,33 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
               )}
             </div>
           </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="btn-secondary"
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn-primary min-w-[120px] flex items-center justify-center"
-              disabled={isLoading || !formData.title?.trim()}
-            >
-              {isLoading ? (
-                <>
-                  <LoadingSpinner size="sm" className="mr-2" />
-                  Saving...
-                </>
-              ) : (
-                'Save Changes'
-              )}
-            </button>
-          </div>
         </form>
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="btn-secondary w-full sm:w-auto"
+            disabled={isLoading}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="btn-primary w-full sm:w-auto min-w-[120px] flex items-center justify-center"
+            disabled={isLoading || !formData.title?.trim()}
+          >
+            {isLoading ? (
+              <>
+                <LoadingSpinner size="sm" className="mr-2" />
+                Saving...
+              </>
+            ) : (
+              'Save Changes'
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
