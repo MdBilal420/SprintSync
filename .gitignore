@@ -33,11 +33,18 @@ dist/
 build/
 .parcel-cache/
 
-# Environment variables
+# Environment variables - NEVER COMMIT THESE!
+.env
+.env.*
 .env.local
+.env.development
 .env.development.local
-.env.test.local
+.env.cloud-dev
+.env.production
 .env.production.local
+.env.test.local
+server/.env
+server/.env.*
 
 # Docker
 .dockerignore
