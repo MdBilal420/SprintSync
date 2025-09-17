@@ -27,61 +27,62 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation Header */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            {/* Logo and Navigation */}
+      <nav className="bg-white shadow-sm border-b border-gray-200">
+        <div className="container-main">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo and Brand */}
             <div className="flex items-center">
-              <Link to="/dashboard" className="flex items-center space-x-2">
-                <CheckSquare className="h-8 w-8 text-blue-600" />
-                <span className="text-xl font-bold text-gray-900">SprintSync</span>
+              <Link to="/dashboard" className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-600 rounded-lg">
+                  <CheckSquare className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold text-gray-900">SprintSync</span>
               </Link>
               
+              {/* Navigation Links */}
               <div className="ml-10 flex space-x-8">
                 <Link
                   to="/dashboard"
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 transition-colors ${
-                    isActive('/dashboard')
-                      ? 'border-blue-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  className={`nav-link ${
+                    isActive('/dashboard') ? 'nav-link-active' : ''
                   }`}
                 >
-                  <Home className="h-4 w-4 mr-2" />
+                  <Home className="h-4 w-4 mr-2 inline" />
                   Dashboard
                 </Link>
                 
                 <Link
                   to="/tasks"
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2 transition-colors ${
-                    isActive('/tasks')
-                      ? 'border-blue-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  className={`nav-link ${
+                    isActive('/tasks') ? 'nav-link-active' : ''
                   }`}
                 >
-                  <CheckSquare className="h-4 w-4 mr-2" />
+                  <CheckSquare className="h-4 w-4 mr-2 inline" />
                   Tasks
                 </Link>
               </div>
             </div>
 
-            {/* User Menu */}
-            <div className="flex items-center space-x-4">
+            {/* User Profile & Actions */}
+            <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-3">
-                <User className="h-5 w-5 text-gray-400" />
-                <span className="text-sm text-gray-700">{user?.email}</span>
-                {user?.is_admin && (
-                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                    Admin
-                  </span>
-                )}
+                <div className="p-2 bg-gray-100 rounded-full">
+                  <User className="h-5 w-5 text-gray-600" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-900">{user?.email}</span>
+                  {user?.is_admin && (
+                    <span className="text-xs text-blue-600 font-medium">Administrator</span>
+                  )}
+                </div>
               </div>
               
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200"
               >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
               </button>
             </div>
           </div>
@@ -89,7 +90,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <main className="container-main py-8">
         {children}
       </main>
     </div>

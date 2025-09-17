@@ -40,152 +40,160 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Welcome Header */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Welcome back, {user?.email}!
+      <div className="section-header">
+        <h1 className="section-title">
+          Welcome back, {user?.email?.split('@')[0]}!
         </h1>
-        <p className="text-gray-600 mt-2">
-          Here's what's happening with your tasks today.
+        <p className="section-subtitle">
+          Here's an overview of your project progress and recent activity.
         </p>
       </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
+        <div className="card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Total Tasks</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
+            </div>
+            <div className="p-3 bg-blue-100 rounded-xl">
               <CheckSquare className="h-6 w-6 text-blue-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Tasks</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
+        <div className="card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">In Progress</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.inProgress}</p>
+            </div>
+            <div className="p-3 bg-yellow-100 rounded-xl">
               <Clock className="h-6 w-6 text-yellow-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">In Progress</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.inProgress}</p>
-            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
+        <div className="card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Completed</p>
+              <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
+            </div>
+            <div className="p-3 bg-green-100 rounded-xl">
               <Target className="h-6 w-6 text-green-600" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Completed</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
-            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+        <div className="card">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600 mb-1">Time Logged</p>
+              <p className="text-3xl font-bold text-gray-900">{formatMinutes(stats.totalMinutes)}</p>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Time Logged</p>
-              <p className="text-2xl font-bold text-gray-900">{formatMinutes(stats.totalMinutes)}</p>
+            <div className="p-3 bg-purple-100 rounded-xl">
+              <TrendingUp className="h-6 w-6 text-purple-600" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Recent Tasks */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-medium text-gray-900">Recent Tasks</h2>
-            <Link
-              to="/tasks"
-              className="text-sm text-blue-600 hover:text-blue-500 font-medium"
-            >
-              View all
-            </Link>
-          </div>
+      <div className="card">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Recent Tasks</h2>
+          <Link
+            to="/tasks"
+            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+          >
+            View All Tasks →
+          </Link>
         </div>
 
-        <div className="p-6">
-          {error && <ErrorMessage message={error} className="mb-4" />}
-          
-          {(!tasks || tasks.length === 0) ? (
-            <div className="text-center py-8">
-              <CheckSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
-              <p className="text-gray-500 mb-4">Get started by creating your first task.</p>
-              <Link
-                to="/tasks"
-                className="btn-primary inline-flex items-center"
+        {error && <ErrorMessage message={error} className="mb-6" />}
+        
+        {(!tasks || tasks.length === 0) ? (
+          <div className="text-center py-12">
+            <div className="p-4 bg-gray-100 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+              <CheckSquare className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No tasks yet</h3>
+            <p className="text-gray-600 mb-6 max-w-sm mx-auto">
+              Get started by creating your first task to track your project progress.
+            </p>
+            <Link
+              to="/tasks"
+              className="btn-primary inline-flex items-center"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Create Your First Task
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {(tasks || []).map((task: Task) => (
+              <div
+                key={task.id}
+                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Task
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {(tasks || []).map((task: Task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{task.title}</h3>
-                    {task.description && (
-                      <p className="text-sm text-gray-500 mt-1">{task.description}</p>
-                    )}
-                    <div className="flex items-center space-x-4 mt-2">
-                      <span className={getStatusColor(task.status)}>
-                        {formatStatus(task.status)}
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-900 mb-1">{task.title}</h3>
+                  {task.description && (
+                    <p className="text-gray-600 text-sm mb-2 line-clamp-2">{task.description}</p>
+                  )}
+                  <div className="flex items-center space-x-4">
+                    <span className={getStatusColor(task.status)}>
+                      {formatStatus(task.status)}
+                    </span>
+                    {task.total_minutes > 0 && (
+                      <span className="text-xs text-gray-500 flex items-center">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {formatMinutes(task.total_minutes)} logged
                       </span>
-                      {task.total_minutes > 0 && (
-                        <span className="text-xs text-gray-500">
-                          {formatMinutes(task.total_minutes)} logged
-                        </span>
-                      )}
-                    </div>
+                    )}
                   </div>
-                  
-                  <Link
-                    to={`/tasks/${task.id}`}
-                    className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-                  >
-                    View
-                  </Link>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                
+                <Link
+                  to={`/tasks/${task.id}`}
+                  className="btn-secondary text-sm py-2 px-4"
+                >
+                  View Details
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
-        <div className="flex space-x-4">
+      <div className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Link
             to="/tasks?action=create"
-            className="btn-primary inline-flex items-center"
+            className="btn-primary flex items-center justify-center py-4"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            New Task
+            <Plus className="h-5 w-5 mr-2" />
+            Create New Task
           </Link>
           <Link
             to="/tasks?status=in_progress"
-            className="btn-secondary inline-flex items-center"
+            className="btn-secondary flex items-center justify-center py-4"
           >
-            <Clock className="h-4 w-4 mr-2" />
-            Active Tasks
+            <Clock className="h-5 w-5 mr-2" />
+            View Active Tasks
+          </Link>
+          <Link
+            to="/tasks?status=done"
+            className="btn-secondary flex items-center justify-center py-4"
+          >
+            <Target className="h-5 w-5 mr-2" />
+            View Completed
           </Link>
         </div>
       </div>
