@@ -8,6 +8,7 @@ import LoadingSpinner from './components/common/LoadingSpinner.tsx';
 import LoginPage from './pages/auth/LoginPage.tsx';
 import RegisterPage from './pages/auth/RegisterPage.tsx';
 import DashboardPage from './pages/dashboard/DashboardPage.tsx';
+import TasksPage from './pages/tasks/TasksPage.tsx';
 import NotificationProvider from './components/common/NotificationProvider.tsx';
 import { useAuthController } from './controllers/authController.ts';
 
@@ -98,6 +99,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks"
+                element={
+                  <ProtectedRoute>
+                    <TasksPage />
                   </ProtectedRoute>
                 }
               />
