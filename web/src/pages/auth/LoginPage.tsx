@@ -29,8 +29,8 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
@@ -38,10 +38,10 @@ const LoginPage: React.FC = () => {
               <CheckSquare className="h-10 w-10 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Welcome to SprintSync
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 text-base sm:text-lg">
             Sign in to manage your projects and tasks
           </p>
         </div>
@@ -119,7 +119,7 @@ const LoginPage: React.FC = () => {
           </form>
           
           <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-            <span className="text-gray-600">
+            <span className="text-gray-600 text-sm">
               Don't have an account?{' '}
               <Link to="/register" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors">
                 Create Account

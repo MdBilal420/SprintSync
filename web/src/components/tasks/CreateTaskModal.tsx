@@ -136,9 +136,9 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Create New Task</h2>
           <button
             onClick={handleClose}
@@ -149,7 +149,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="space-y-4">
             {/* Title */}
             <div>
@@ -191,13 +191,13 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
 
             {/* AI Suggestion Section */}
             <div className="border-t border-gray-200 pt-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
                 <h3 className="text-sm font-medium text-gray-700 flex items-center">
                   <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
                   AI Assistant
                 </h3>
                 {aiAvailable && (
-                  <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                  <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full self-start sm:self-auto">
                     Available
                   </span>
                 )}
@@ -233,12 +233,12 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                 {aiLoading ? (
                   <>
                     <LoadingSpinner size="sm" className="mr-2" />
-                    Generating with AI...
+                    <span className="truncate">Generating with AI...</span>
                   </>
                 ) : (
                   <>
                     <Wand2 className="h-4 w-4 mr-2" />
-                    {aiAvailable ? 'Generate with AI' : 'AI Unavailable'}
+                    <span className="truncate">{aiAvailable ? 'Generate with AI' : 'AI Unavailable'}</span>
                   </>
                 )}
               </button>
@@ -253,7 +253,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
             {/* AI Suggestion Results */}
             {showAISuggestion && lastSuggestion && (
               <div className="border-t border-gray-200 pt-4 mt-4">
-                <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 space-y-4">
+                <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-3 sm:p-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-medium text-gray-900 flex items-center">
                       <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
@@ -275,7 +275,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
 
                   {/* Description Suggestion */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <label className="text-xs font-medium text-gray-700">Suggested Description:</label>
                       <div className="flex space-x-1">
                         <button
@@ -288,6 +288,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                           ) : (
                             <Copy className="h-3 w-3" />
                           )}
+                          <span className="ml-1">Copy</span>
                         </button>
                         <button
                           type="button"
@@ -306,7 +307,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                   {/* Acceptance Criteria */}
                   {lastSuggestion.acceptance_criteria.length > 0 && (
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <label className="text-xs font-medium text-gray-700">Acceptance Criteria:</label>
                         <button
                           type="button"
@@ -314,13 +315,14 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                             lastSuggestion.acceptance_criteria.map(c => `• ${c}`).join('\n'),
                             'criteria'
                           )}
-                          className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
+                          className="text-xs text-gray-500 hover:text-gray-700 flex items-center self-start sm:self-auto"
                         >
                           {copiedItems.has('criteria') ? (
                             <Check className="h-3 w-3 text-green-500" />
                           ) : (
                             <Copy className="h-3 w-3" />
                           )}
+                          <span className="ml-1">Copy</span>
                         </button>
                       </div>
                       <div className="bg-white rounded border p-3">
@@ -328,7 +330,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                           {lastSuggestion.acceptance_criteria.map((criteria, index) => (
                             <li key={index} className="flex items-start">
                               <span className="text-green-500 mr-2">•</span>
-                              {criteria}
+                              <span className="flex-1">{criteria}</span>
                             </li>
                           ))}
                         </ul>
@@ -339,7 +341,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                   {/* Technical Notes */}
                   {lastSuggestion.technical_notes.length > 0 && (
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                         <label className="text-xs font-medium text-gray-700">Technical Notes:</label>
                         <button
                           type="button"
@@ -347,13 +349,14 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                             lastSuggestion.technical_notes.map(n => `• ${n}`).join('\n'),
                             'notes'
                           )}
-                          className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
+                          className="text-xs text-gray-500 hover:text-gray-700 flex items-center self-start sm:self-auto"
                         >
                           {copiedItems.has('notes') ? (
                             <Check className="h-3 w-3 text-green-500" />
                           ) : (
                             <Copy className="h-3 w-3" />
                           )}
+                          <span className="ml-1">Copy</span>
                         </button>
                       </div>
                       <div className="bg-white rounded border p-3">
@@ -361,7 +364,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                           {lastSuggestion.technical_notes.map((note, index) => (
                             <li key={index} className="flex items-start">
                               <span className="text-blue-500 mr-2">•</span>
-                              {note}
+                              <span className="flex-1">{note}</span>
                             </li>
                           ))}
                         </ul>
@@ -370,14 +373,14 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                   )}
 
                   {/* Tags and Estimate */}
-                  <div className="flex items-center justify-between text-xs text-gray-600">
-                    <div className="flex items-center space-x-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-gray-600">
+                    <div className="flex flex-wrap items-center gap-2">
                       {lastSuggestion.tags.length > 0 && (
                         <div className="flex items-center space-x-1">
                           <span>Tags:</span>
-                          <div className="flex space-x-1">
+                          <div className="flex flex-wrap gap-1">
                             {lastSuggestion.tags.map((tag, index) => (
-                              <span key={index} className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                              <span key={index} className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">
                                 {tag}
                               </span>
                             ))}
@@ -386,7 +389,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
                       )}
                     </div>
                     {lastSuggestion.estimated_hours && (
-                      <div className="text-gray-500">
+                      <div className="text-gray-500 mt-1 sm:mt-0">
                         Est: {lastSuggestion.estimated_hours}h
                       </div>
                     )}
@@ -395,33 +398,33 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
               </div>
             )}
           </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="btn-secondary"
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn-primary min-w-[120px] flex items-center justify-center"
-              disabled={isLoading || !formData.title.trim()}
-            >
-              {isLoading ? (
-                <>
-                  <LoadingSpinner size="sm" className="mr-2" />
-                  Creating...
-                </>
-              ) : (
-                'Create Task'
-              )}
-            </button>
-          </div>
         </form>
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="btn-secondary w-full sm:w-auto"
+            disabled={isLoading}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="btn-primary w-full sm:w-auto min-w-[120px] flex items-center justify-center"
+            disabled={isLoading || !formData.title.trim()}
+          >
+            {isLoading ? (
+              <>
+                <LoadingSpinner size="sm" className="mr-2" />
+                Creating...
+              </>
+            ) : (
+              'Create Task'
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

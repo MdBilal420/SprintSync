@@ -61,7 +61,7 @@ const DashboardPage: React.FC = () => {
         
         {/* Statistics Cards */}
         <div className="lg:col-span-2">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="card">
               <div className="flex items-center justify-between">
                 <div>
@@ -98,7 +98,7 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="card lg:col-span-3">
+            <div className="card">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">Time Logged</p>
@@ -115,11 +115,11 @@ const DashboardPage: React.FC = () => {
 
       {/* Recent Tasks */}
       <div className="card">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Recent Tasks</h2>
           <Link
             to="/tasks"
-            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+            className="text-blue-600 hover:text-blue-700 font-medium transition-colors text-sm sm:text-base"
           >
             View All Tasks →
           </Link>
@@ -149,14 +149,14 @@ const DashboardPage: React.FC = () => {
             {(tasks || []).map((task: Task) => (
               <div
                 key={task.id}
-                className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
               >
-                <div className="flex-1">
+                <div className="flex-1 mb-3 sm:mb-0">
                   <h3 className="font-semibold text-gray-900 mb-1">{task.title}</h3>
                   {task.description && (
                     <p className="text-gray-600 text-sm mb-2 line-clamp-2">{task.description}</p>
                   )}
-                  <div className="flex items-center space-x-4">
+                  <div className="flex flex-wrap items-center gap-3">
                     <span className={getStatusColor(task.status)}>
                       {formatStatus(task.status)}
                     </span>
@@ -171,7 +171,7 @@ const DashboardPage: React.FC = () => {
                 
                 <Link
                   to={`/tasks/${task.id}`}
-                  className="btn-secondary text-sm py-2 px-4"
+                  className="btn-secondary text-sm py-2 px-4 w-full sm:w-auto"
                 >
                   View Details
                 </Link>

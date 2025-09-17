@@ -41,9 +41,9 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <AlertTriangle className="h-6 w-6 text-red-600" />
@@ -60,7 +60,7 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <p className="text-gray-600">
             Are you sure you want to delete this task? This action cannot be undone.
           </p>
@@ -68,17 +68,17 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
           {taskTitle && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg">
               <p className="text-sm font-medium text-gray-900">Task to delete:</p>
-              <p className="text-sm text-gray-600 mt-1">"{taskTitle}"</p>
+              <p className="text-sm text-gray-600 mt-1 line-clamp-2">"{taskTitle}"</p>
             </div>
           )}
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end space-x-3 px-6 py-4 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200">
           <button
             type="button"
             onClick={onClose}
-            className="btn-secondary"
+            className="btn-secondary w-full sm:w-auto"
             disabled={isLoading}
           >
             Cancel
@@ -86,7 +86,7 @@ const DeleteTaskModal: React.FC<DeleteTaskModalProps> = ({
           <button
             type="button"
             onClick={handleConfirmDelete}
-            className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 min-w-[120px] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200 w-full sm:w-auto min-w-[120px] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isLoading}
           >
             {isLoading ? (
