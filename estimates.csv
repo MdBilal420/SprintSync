@@ -1,0 +1,39 @@
+Phase,Task,Estimated Hours,Actual Hours,Status,Notes
+Setup,Project structure creation,1.5,1.5,Complete,Created server/web folders with clean architecture
+Setup,Time estimation and planning,0.5,,In Progress,Creating this estimates.csv file
+Setup,Git repository initialization,0.5,0.5,Complete,Initial commit with meaningful structure
+Backend Foundation,FastAPI basic setup and configuration,2,,Pending,Main app setup with CORS and basic endpoints
+Backend Foundation,SQLAlchemy models (User and Task),3,,Pending,Database schema design and relationships
+Backend Foundation,Alembic migrations setup,2,,Pending,Database migration scripts and configuration
+Backend Foundation,Cloud SQL instance and connection,3,,Pending,GCP setup and environment configuration
+Backend Authentication,JWT authentication system,4,,Pending,Login/register endpoints with token management
+Backend Authentication,Password hashing and validation,1.5,,Pending,Secure password handling with bcrypt
+Backend Authentication,User CRUD endpoints,3,,Pending,User management API with proper validation
+Backend Core,Task CRUD endpoints,4,,Pending,Task management with status transitions
+Backend Core,API documentation (Swagger),1,,Pending,Auto-generated docs with proper schemas
+Backend Core,Structured logging implementation,2,,Pending,Request/response logging with error tracking
+AI Integration,Choose AI feature (description vs planning),0.5,,Pending,Decision between task description or daily planning
+AI Integration,OpenAI API integration,3,,Pending,API calls with proper error handling
+AI Integration,AI suggest endpoint implementation,2,,Pending,Backend endpoint for AI suggestions
+AI Integration,Fallback mechanism for AI failures,1.5,,Pending,Graceful degradation when AI unavailable
+Frontend Foundation,React + Vite project setup,2,,Pending,Initialize with TypeScript and routing
+Frontend Foundation,Project structure and folder organization,1,,Pending,Components services hooks organization
+Frontend Foundation,API service layer setup,2,,Pending,HTTP client with authentication handling
+Frontend Authentication,Login and register forms,3,,Pending,Form validation and error handling
+Frontend Authentication,Authentication flow and state management,2.5,,Pending,JWT token storage and user state
+Frontend Core,Task list view with status updates,4,,Pending,Interactive task list with inline editing
+Frontend Core,Task create/edit forms and modals,3,,Pending,Form components with validation
+Frontend Core,AI integration UI components,2.5,,Pending,AI suggestion button and response display
+Frontend Styling,Responsive CSS and basic styling,3,,Pending,Clean mobile-friendly interface
+Frontend Styling,UI polish and user experience,2,,Pending,Final styling touches and UX improvements
+DevOps,Docker configuration (Dockerfile + compose),2,,Pending,Containerization for both services
+DevOps,GCP deployment configuration,3,,Pending,Cloud Run setup with environment variables
+DevOps,Environment variables and secrets,1.5,,Pending,Secure configuration management
+Testing,Database seeding with demo data,1.5,,Pending,Sample users and tasks for demonstration
+Testing,End-to-end testing and bug fixes,4,,Pending,Full application testing and issue resolution
+Testing,Production deployment and validation,2,,Pending,Deploy to GCP and verify functionality
+Documentation,README with setup instructions,2,,Pending,Comprehensive documentation with live URL
+Documentation,Update time estimates with actuals,0.5,,Pending,Compare estimated vs actual time spent
+Documentation,Demo video creation and editing,3,,Pending,5-minute video covering app demo and code tour
+Final,Final testing and polish,2,,Pending,Last-minute fixes and improvements
+Total Estimated Hours,75,2.0,,"Conservative estimate with buffer for unknowns"
