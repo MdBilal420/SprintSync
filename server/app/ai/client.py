@@ -7,6 +7,8 @@ from typing import Optional
 import openai
 from openai import OpenAI
 
+from ..core.config import settings
+
 
 class AIError(Exception):
     """Custom exception for AI service errors."""
@@ -23,7 +25,8 @@ def get_ai_client() -> Optional[OpenAI]:
     Raises:
         AIError: If client configuration fails
     """
-    api_key = os.getenv("OPENAI_API_KEY")
+    # Try getting API key from settings first, then from environment
+    api_key = settings.openai_api_key or os.getenv("OPENAI_API_KEY")
     
     if not api_key:
         return None
@@ -57,13 +60,27 @@ async def test_ai_connection() -> dict:
         Dictionary with connection status and details
     """
     try:
-        client = get_ai_client()
-        if not client:
+        # Check if API key is configured
+        api_key = settings.openai_api_key or os.getenv("OPENAI_API_KEY")
+        if not api_key:
             return {
                 "available": False,
+                "configured": False,
                 "status": "not_configured",
-                "message": "OpenAI API key not found in environment variables"
+                "message": "OpenAI API key not found in environment variables or settings"
             }
+        
+        # Check if API key format looks correct
+        if not api_key.startswith('sk-'):
+            return {
+                "available": False,
+                "configured": True,
+                "status": "invalid_key",
+                "message": "OpenAI API key format appears invalid"
+            }
+        
+        # Create client
+        client = OpenAI(api_key=api_key)
         
         # Test with a simple completion
         response = client.chat.completions.create(
@@ -74,6 +91,7 @@ async def test_ai_connection() -> dict:
         
         return {
             "available": True,
+            "configured": True,
             "status": "connected",
             "message": "AI service is operational",
             "model": "gpt-3.5-turbo",
@@ -83,6 +101,7 @@ async def test_ai_connection() -> dict:
     except Exception as e:
         return {
             "available": False,
+            "configured": True,
             "status": "error",
             "message": f"AI service test failed: {str(e)}"
         }
