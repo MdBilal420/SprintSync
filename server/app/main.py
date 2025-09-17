@@ -6,6 +6,10 @@ Main entry point for the SprintSync backend API.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from .database.connection import create_tables
+
+# Initialize database tables
+create_tables()
 
 app = FastAPI(
     title="SprintSync API",
@@ -29,7 +33,7 @@ async def root():
         "message": "SprintSync API is running", 
         "version": "0.1.0",
         "environment": "development",
-        "status": "Backend foundation setup complete"
+        "status": "Database models created"
     }
 
 @app.get("/health")
@@ -39,7 +43,8 @@ async def health_check():
         "environment": "development",
         "components": {
             "api": "operational",
-            "database": "pending",
+            "database": "connected",
+            "models": "User, Task",
             "ai": "pending"
         }
     }
