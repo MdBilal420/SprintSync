@@ -10,6 +10,15 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import routers
 from .routers import auth_router, users_router, tasks_router, ai_router
 
+# Import logging middleware
+from .middleware.logging_middleware import LoggingMiddleware
+
+# Import logging configuration
+from .core.logging_config import setup_logging
+
+# Setup logging
+setup_logging()
+
 # Note: Database tables are now managed by Alembic migrations
 # Run 'alembic upgrade head' to create/update database schema
 
@@ -47,6 +56,9 @@ app = FastAPI(
         "name": "MIT",
     },
 )
+
+# Add structured logging middleware
+app.add_middleware(LoggingMiddleware)
 
 # Configure CORS for frontend integration
 app.add_middleware(
