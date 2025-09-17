@@ -14,8 +14,6 @@ import {
   updateTaskTime,
   clearError,
   setFilters,
-  clearCurrentTask,
-  setCurrentPage,
 } from '../models/slices/tasksSlice.ts';
 import { addNotification, openModal, closeModal } from '../models/slices/uiSlice.ts';
 import type { TaskCreate, TaskUpdate, TaskStatus } from '../types/index.ts';
@@ -43,9 +41,10 @@ export const useTasksController = () => {
     try {
       await dispatch(fetchTasks(params)).unwrap();
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : (error || 'Failed to load tasks');
       dispatch(addNotification({
         type: 'error',
-        message: error || 'Failed to load tasks',
+        message: errorMessage,
         duration: 5000,
       }));
     }
@@ -55,9 +54,10 @@ export const useTasksController = () => {
     try {
       await dispatch(fetchTaskById(taskId)).unwrap();
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : (error || 'Failed to load task');
       dispatch(addNotification({
         type: 'error',
-        message: error || 'Failed to load task',
+        message: errorMessage,
         duration: 5000,
       }));
     }
@@ -73,9 +73,10 @@ export const useTasksController = () => {
       }));
       dispatch(closeModal());
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : (error || 'Failed to create task');
       dispatch(addNotification({
         type: 'error',
-        message: error || 'Failed to create task',
+        message: errorMessage,
         duration: 5000,
       }));
     }
@@ -91,9 +92,10 @@ export const useTasksController = () => {
       }));
       dispatch(closeModal());
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : (error || 'Failed to update task');
       dispatch(addNotification({
         type: 'error',
-        message: error || 'Failed to update task',
+        message: errorMessage,
         duration: 5000,
       }));
     }
@@ -109,9 +111,10 @@ export const useTasksController = () => {
       }));
       dispatch(closeModal());
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : (error || 'Failed to delete task');
       dispatch(addNotification({
         type: 'error',
-        message: error || 'Failed to delete task',
+        message: errorMessage,
         duration: 5000,
       }));
     }
@@ -126,9 +129,10 @@ export const useTasksController = () => {
         duration: 3000,
       }));
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : (error || 'Failed to update task status');
       dispatch(addNotification({
         type: 'error',
-        message: error || 'Failed to update task status',
+        message: errorMessage,
         duration: 5000,
       }));
     }
@@ -143,9 +147,10 @@ export const useTasksController = () => {
         duration: 3000,
       }));
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : (error || 'Failed to log time');
       dispatch(addNotification({
         type: 'error',
-        message: error || 'Failed to log time',
+        message: errorMessage,
         duration: 5000,
       }));
     }
@@ -155,16 +160,8 @@ export const useTasksController = () => {
     dispatch(setFilters(newFilters));
   }, [dispatch]);
 
-  const changePage = useCallback((page: number) => {
-    dispatch(setCurrentPage(page));
-  }, [dispatch]);
-
   const clearTaskError = useCallback(() => {
     dispatch(clearError());
-  }, [dispatch]);
-
-  const clearCurrentTaskData = useCallback(() => {
-    dispatch(clearCurrentTask());
   }, [dispatch]);
 
   // Modal actions
@@ -176,8 +173,8 @@ export const useTasksController = () => {
     dispatch(openModal({ type: 'editTask', data: task }));
   }, [dispatch]);
 
-  const openDeleteTaskModal = useCallback((taskId: string) => {
-    dispatch(openModal({ type: 'deleteTask', data: { taskId } }));
+  const openDeleteTaskModal = useCallback((taskId: string, taskTitle?: string) => {
+    dispatch(openModal({ type: 'deleteTask', data: { taskId, taskTitle } }));
   }, [dispatch]);
 
   const closeTaskModal = useCallback(() => {
@@ -201,7 +198,7 @@ export const useTasksController = () => {
 
   return {
     // State
-    tasks,
+    tasks: tasks || [],
     currentTask,
     totalTasks,
     currentPage,
@@ -219,9 +216,7 @@ export const useTasksController = () => {
     handleUpdateTaskStatus,
     handleLogTime,
     updateFilters,
-    changePage,
     clearTaskError,
-    clearCurrentTaskData,
     
     // Modal actions
     openCreateTaskModal,

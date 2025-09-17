@@ -34,9 +34,10 @@ export const useAuthController = () => {
       navigate('/dashboard');
       return result;
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : (error || 'Login failed');
       dispatch(addNotification({
         type: 'error',
-        message: error || 'Login failed',
+        message: errorMessage,
         duration: 5000,
       }));
       throw error;
@@ -54,9 +55,10 @@ export const useAuthController = () => {
       navigate('/dashboard');
       return result;
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : (error || 'Registration failed');
       dispatch(addNotification({
         type: 'error',
-        message: error || 'Registration failed',
+        message: errorMessage,
         duration: 5000,
       }));
       throw error;

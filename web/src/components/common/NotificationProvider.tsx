@@ -7,6 +7,7 @@ import React, { type ReactNode } from 'react';
 import { useUIController } from '../../controllers/uiController.ts';
 import { type Notification } from '../../models/slices/uiSlice.ts';
 import { X, CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
+import ErrorBoundary from './ErrorBoundary.tsx';
 
 interface NotificationProviderProps {
   children: ReactNode;
@@ -46,7 +47,7 @@ const NotificationProvider: React.FC<NotificationProviderProps> = ({ children })
   };
 
   return (
-    <>
+    <ErrorBoundary>
       {children}
       
       {/* Notifications Container */}
@@ -62,7 +63,10 @@ const NotificationProvider: React.FC<NotificationProviderProps> = ({ children })
               </div>
               <div className="ml-3 w-0 flex-1">
                 <p className="text-sm font-medium text-gray-900">
-                  {notification.message}
+                  {typeof notification.message === 'string' 
+                    ? notification.message 
+                    : 'An error occurred'
+                  }
                 </p>
               </div>
               <div className="ml-4 flex-shrink-0 flex">
@@ -78,7 +82,7 @@ const NotificationProvider: React.FC<NotificationProviderProps> = ({ children })
           </div>
         ))}
       </div>
-    </>
+    </ErrorBoundary>
   );
 };
 

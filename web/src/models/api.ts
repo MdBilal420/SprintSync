@@ -96,8 +96,7 @@ export const deleteTask = async (taskId: string): Promise<void> => {
 
 export const updateTaskTime = async (taskId: string, additionalMinutes: number): Promise<Task> => {
   const response: AxiosResponse<Task> = await api.patch(
-    `/tasks/${taskId}/time`,
-    { additional_minutes: additionalMinutes }
+    `/tasks/${taskId}/time?minutes=${additionalMinutes}`
   );
   return response.data;
 };
@@ -142,22 +141,3 @@ export const healthCheck = async (): Promise<{ status: string; database: string;
 
 // Export axios instance for advanced usage if needed
 export { api };
-
-// Default export with all API functions for backward compatibility
-export default {
-  register,
-  login,
-  getCurrentUser,
-  getTasks,
-  getTask,
-  createTask,
-  updateTask,
-  deleteTask,
-  updateTaskTime,
-  checkAIStatus,
-  suggestTaskDescription,
-  getUsers,
-  updateUser,
-  deleteUser,
-  healthCheck,
-};
