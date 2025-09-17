@@ -186,12 +186,15 @@ export const useTasksController = () => {
 
   // Statistics calculations
   const getTaskStats = useCallback(() => {
+    // Ensure tasks is defined and is an array
+    const tasksList = tasks || [];
+    
     const stats = {
-      total: tasks.length,
-      todo: tasks.filter(t => t.status === 'todo').length,
-      inProgress: tasks.filter(t => t.status === 'in_progress').length,
-      completed: tasks.filter(t => t.status === 'done').length,
-      totalMinutes: tasks.reduce((sum, t) => sum + t.total_minutes, 0),
+      total: tasksList.length,
+      todo: tasksList.filter(t => t.status === 'todo').length,
+      inProgress: tasksList.filter(t => t.status === 'in_progress').length,
+      completed: tasksList.filter(t => t.status === 'done').length,
+      totalMinutes: tasksList.reduce((sum, t) => sum + t.total_minutes, 0),
     };
     return stats;
   }, [tasks]);

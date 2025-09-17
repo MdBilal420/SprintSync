@@ -119,7 +119,7 @@ const DashboardPage: React.FC = () => {
         <div className="p-6">
           {error && <ErrorMessage message={error} className="mb-4" />}
           
-          {tasks.length === 0 ? (
+          {(!tasks || tasks.length === 0) ? (
             <div className="text-center py-8">
               <CheckSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks yet</h3>
@@ -134,7 +134,7 @@ const DashboardPage: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {tasks.map((task: Task) => (
+              {(tasks || []).map((task: Task) => (
                 <div
                   key={task.id}
                   className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
