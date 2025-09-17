@@ -4,11 +4,12 @@
  */
 
 import React, { useState } from 'react';
-import { X, Wand2 } from 'lucide-react';
+import { X, Wand2, Sparkles, Copy, Check } from 'lucide-react';
 import { useTasksController } from '../../controllers/tasksController';
 import { useUIController } from '../../controllers/uiController';
+import { useAIController } from '../../controllers/aiController';
 import LoadingSpinner from '../common/LoadingSpinner';
-import type { TaskCreate } from '../../types';
+import type { TaskCreate, TaskDescriptionRequest } from '../../types';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -18,6 +19,13 @@ interface CreateTaskModalProps {
 const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) => {
   const { handleCreateTask, isLoading } = useTasksController();
   const { showNotification } = useUIController();
+  const { 
+    isAvailable: aiAvailable, 
+    isLoading: aiLoading, 
+    lastSuggestion,
+    handleGenerateTaskDescription,
+    clearSuggestion 
+  } = useAIController();
   
   const [formData, setFormData] = useState<TaskCreate>({
     title: '',
@@ -25,6 +33,9 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
   });
 
   const [errors, setErrors] = useState<Partial<TaskCreate>>({});
+  const [showAISuggestion, setShowAISuggestion] = useState(false);
+  const [aiContext, setAIContext] = useState('');
+  const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
 
   const validateForm = (): boolean => {
     const newErrors: Partial<TaskCreate> = {};
@@ -62,6 +73,10 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
   const handleClose = () => {
     setFormData({ title: '', description: '' });
     setErrors({});
+    setShowAISuggestion(false);
+    setAIContext('');
+    setCopiedItems(new Set());
+    clearSuggestion();
     onClose();
   };
 
@@ -73,8 +88,48 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
     }
   };
 
-  const handleAISuggestion = () => {
-    showNotification('info', 'AI suggestions coming soon!');
+  const handleAISuggestion = async () => {
+    if (!formData.title.trim()) {
+      showNotification('error', 'Please enter a task title first');
+      return;
+    }
+
+    try {
+      const request: TaskDescriptionRequest = {
+        title: formData.title,
+        context: aiContext || undefined,
+        project_type: 'web_application',
+        complexity: 'medium'
+      };
+      
+      await handleGenerateTaskDescription(request);
+      setShowAISuggestion(true);
+    } catch (error) {
+      // Error handled by controller
+    }
+  };
+
+  const copyToClipboard = async (text: string, itemType: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedItems(prev => new Set([...prev, itemType]));
+      setTimeout(() => {
+        setCopiedItems(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(itemType);
+          return newSet;
+        });
+      }, 2000);
+    } catch (error) {
+      showNotification('error', 'Failed to copy to clipboard');
+    }
+  };
+
+  const applyAISuggestion = (field: 'description', value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
   };
 
   if (!isOpen) return null;
@@ -134,21 +189,211 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
               )}
             </div>
 
-            {/* AI Suggestion Button */}
+            {/* AI Suggestion Section */}
             <div className="border-t border-gray-200 pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-gray-700 flex items-center">
+                  <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
+                  AI Assistant
+                </h3>
+                {aiAvailable && (
+                  <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                    Available
+                  </span>
+                )}
+              </div>
+              
+              {/* AI Context Input */}
+              <div className="mb-3">
+                <label htmlFor="ai-context" className="block text-xs text-gray-600 mb-1">
+                  Additional Context (optional)
+                </label>
+                <input
+                  id="ai-context"
+                  type="text"
+                  className="input-field w-full text-sm"
+                  placeholder="e.g., 'frontend component', 'API endpoint', 'database migration'"
+                  value={aiContext}
+                  onChange={(e) => setAIContext(e.target.value)}
+                  disabled={isLoading || aiLoading}
+                />
+              </div>
+
+              {/* AI Generate Button */}
               <button
                 type="button"
                 onClick={handleAISuggestion}
-                className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                disabled={isLoading}
+                className={`w-full flex items-center justify-center px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
+                  aiAvailable
+                    ? 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
+                    : 'border-gray-300 text-gray-500 bg-gray-50'
+                }`}
+                disabled={isLoading || aiLoading || !formData.title.trim()}
               >
-                <Wand2 className="h-4 w-4 mr-2" />
-                Get AI Suggestions
+                {aiLoading ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Generating with AI...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="h-4 w-4 mr-2" />
+                    {aiAvailable ? 'Generate with AI' : 'AI Unavailable'}
+                  </>
+                )}
               </button>
-              <p className="text-xs text-gray-500 mt-1 text-center">
-                AI will help generate a detailed description and acceptance criteria
-              </p>
+              
+              {!aiAvailable && (
+                <p className="text-xs text-gray-500 mt-1 text-center">
+                  AI suggestions will use fallback responses
+                </p>
+              )}
             </div>
+
+            {/* AI Suggestion Results */}
+            {showAISuggestion && lastSuggestion && (
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium text-gray-900 flex items-center">
+                      <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
+                      AI Suggestions
+                      {!lastSuggestion.ai_generated && (
+                        <span className="ml-2 text-xs text-amber-600 bg-amber-100 px-2 py-1 rounded">
+                          Fallback
+                        </span>
+                      )}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowAISuggestion(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Description Suggestion */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-medium text-gray-700">Suggested Description:</label>
+                      <div className="flex space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(lastSuggestion.description, 'description')}
+                          className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
+                        >
+                          {copiedItems.has('description') ? (
+                            <Check className="h-3 w-3 text-green-500" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => applyAISuggestion('description', lastSuggestion.description)}
+                          className="text-xs text-purple-600 hover:text-purple-800 font-medium"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                    <div className="bg-white rounded border p-3 text-sm text-gray-700">
+                      {lastSuggestion.description}
+                    </div>
+                  </div>
+
+                  {/* Acceptance Criteria */}
+                  {lastSuggestion.acceptance_criteria.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-medium text-gray-700">Acceptance Criteria:</label>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(
+                            lastSuggestion.acceptance_criteria.map(c => `• ${c}`).join('\n'),
+                            'criteria'
+                          )}
+                          className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
+                        >
+                          {copiedItems.has('criteria') ? (
+                            <Check className="h-3 w-3 text-green-500" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </button>
+                      </div>
+                      <div className="bg-white rounded border p-3">
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          {lastSuggestion.acceptance_criteria.map((criteria, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="text-green-500 mr-2">•</span>
+                              {criteria}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Technical Notes */}
+                  {lastSuggestion.technical_notes.length > 0 && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-medium text-gray-700">Technical Notes:</label>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(
+                            lastSuggestion.technical_notes.map(n => `• ${n}`).join('\n'),
+                            'notes'
+                          )}
+                          className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
+                        >
+                          {copiedItems.has('notes') ? (
+                            <Check className="h-3 w-3 text-green-500" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </button>
+                      </div>
+                      <div className="bg-white rounded border p-3">
+                        <ul className="text-sm text-gray-600 space-y-1">
+                          {lastSuggestion.technical_notes.map((note, index) => (
+                            <li key={index} className="flex items-start">
+                              <span className="text-blue-500 mr-2">•</span>
+                              {note}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tags and Estimate */}
+                  <div className="flex items-center justify-between text-xs text-gray-600">
+                    <div className="flex items-center space-x-4">
+                      {lastSuggestion.tags.length > 0 && (
+                        <div className="flex items-center space-x-1">
+                          <span>Tags:</span>
+                          <div className="flex space-x-1">
+                            {lastSuggestion.tags.map((tag, index) => (
+                              <span key={index} className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {lastSuggestion.estimated_hours && (
+                      <div className="text-gray-500">
+                        Est: {lastSuggestion.estimated_hours}h
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Actions */}

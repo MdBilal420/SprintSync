@@ -85,7 +85,16 @@ export interface ApiError {
 export interface AITaskSuggestion {
   title: string;
   description: string;
-  estimated_minutes: number;
   acceptance_criteria: string[];
   technical_notes: string[];
+  estimated_hours?: number;
+  tags: string[];
+  ai_generated: boolean;
+}
+
+export interface TaskDescriptionRequest {
+  title: string;
+  context?: string;
+  project_type?: string;
+  complexity?: string;
 }

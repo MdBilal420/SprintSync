@@ -4,9 +4,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, Clock } from 'lucide-react';
+import { X, Clock, Wand2, Sparkles } from 'lucide-react';
 import { useTasksController } from '../../controllers/tasksController';
 import { useUIController } from '../../controllers/uiController';
+import { useAIController } from '../../controllers/aiController';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { formatMinutes } from '../../utils/formatters';
 import type { Task, TaskUpdate, TaskStatus } from '../../types';
@@ -20,6 +21,7 @@ interface EditTaskModalProps {
 const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) => {
   const { handleUpdateTask, handleLogTime, isLoading } = useTasksController();
   const { showNotification } = useUIController();
+  const { isAvailable: aiAvailable, isLoading: aiLoading, handleGenerateTaskDescription } = useAIController();
   
   const [formData, setFormData] = useState<TaskUpdate>({
     title: '',
@@ -245,6 +247,21 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
                   </button>
                 ))}
               </div>
+              
+              {/* AI Enhancement Button */}
+              {aiAvailable && task && (
+                <div className="border-t border-gray-200 pt-3 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => showNotification('info', 'AI enhancement suggestions coming in future updates!')}
+                    className="w-full flex items-center justify-center px-3 py-2 text-xs border border-purple-300 rounded text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
+                    disabled={isLoading || aiLoading}
+                  >
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Enhance with AI
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
