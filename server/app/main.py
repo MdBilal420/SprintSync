@@ -6,10 +6,9 @@ Main entry point for the SprintSync backend API.
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .database.connection import create_tables
 
-# Initialize database tables
-create_tables()
+# Note: Database tables are now managed by Alembic migrations
+# Run 'alembic upgrade head' to create/update database schema
 
 app = FastAPI(
     title="SprintSync API",
@@ -33,7 +32,7 @@ async def root():
         "message": "SprintSync API is running", 
         "version": "0.1.0",
         "environment": "development",
-        "status": "Database models created"
+        "status": "Database migrations managed by Alembic"
     }
 
 @app.get("/health")
@@ -43,8 +42,9 @@ async def health_check():
         "environment": "development",
         "components": {
             "api": "operational",
-            "database": "connected",
+            "database": "alembic-managed",
             "models": "User, Task",
+            "migrations": "ready",
             "ai": "pending"
         }
     }
