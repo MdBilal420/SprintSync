@@ -29,6 +29,8 @@ export const loginUser = createAsyncThunk(
   async (credentials: UserLogin, { rejectWithValue }) => {
     try {
       const tokens = await apiService.login(credentials);
+      // Store the token immediately so the next API call can use it
+      localStorage.setItem('auth_token', tokens.access_token);
       const user = await apiService.getCurrentUser();
       return { tokens, user };
     } catch (error: any) {
@@ -46,6 +48,8 @@ export const registerUser = createAsyncThunk(
         email: userData.email,
         password: userData.password,
       });
+      // Store the token immediately so the next API call can use it
+      localStorage.setItem('auth_token', tokens.access_token);
       const user = await apiService.getCurrentUser();
       return { tokens, user };
     } catch (error: any) {
