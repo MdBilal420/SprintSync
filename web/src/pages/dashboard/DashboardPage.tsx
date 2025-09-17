@@ -10,6 +10,7 @@ import { useAuthController } from '../../controllers/authController.ts';
 import { useTasksController } from '../../controllers/tasksController.ts';
 import LoadingSpinner from '../../components/common/LoadingSpinner.tsx';
 import ErrorMessage from '../../components/common/ErrorMessage.tsx';
+import AIStatusCard from '../../components/common/AIStatusCard.tsx';
 import { getStatusColor, formatMinutes, formatStatus } from '../../utils/formatters.ts';
 import type { Task } from '../../types/index.ts';
 
@@ -51,52 +52,62 @@ const DashboardPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">Total Tasks</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-xl">
-              <CheckSquare className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
+      {/* AI Status and Statistics Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* AI Status Card */}
+        <div className="lg:col-span-1">
+          <AIStatusCard />
         </div>
+        
+        {/* Statistics Cards */}
+        <div className="lg:col-span-2">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="card">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Total Tasks</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                </div>
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <CheckSquare className="h-5 w-5 text-blue-600" />
+                </div>
+              </div>
+            </div>
 
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">In Progress</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.inProgress}</p>
+            <div className="card">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">In Progress</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.inProgress}</p>
+                </div>
+                <div className="p-2 bg-yellow-100 rounded-lg">
+                  <Clock className="h-5 w-5 text-yellow-600" />
+                </div>
+              </div>
             </div>
-            <div className="p-3 bg-yellow-100 rounded-xl">
-              <Clock className="h-6 w-6 text-yellow-600" />
-            </div>
-          </div>
-        </div>
 
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">Completed</p>
-              <p className="text-3xl font-bold text-gray-900">{stats.completed}</p>
+            <div className="card">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Completed</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
+                </div>
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Target className="h-5 w-5 text-green-600" />
+                </div>
+              </div>
             </div>
-            <div className="p-3 bg-green-100 rounded-xl">
-              <Target className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
 
-        <div className="card">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600 mb-1">Time Logged</p>
-              <p className="text-3xl font-bold text-gray-900">{formatMinutes(stats.totalMinutes)}</p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-xl">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+            <div className="card lg:col-span-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Time Logged</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatMinutes(stats.totalMinutes)}</p>
+                </div>
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <TrendingUp className="h-5 w-5 text-purple-600" />
+                </div>
+              </div>
             </div>
           </div>
         </div>

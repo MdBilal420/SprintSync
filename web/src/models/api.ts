@@ -13,7 +13,8 @@ import type {
   TaskUpdate, 
   AuthTokens,
   PaginatedResponse,
-  AITaskSuggestion 
+  AITaskSuggestion,
+  TaskDescriptionRequest
 } from '../types/index.ts';
 
 // Create axios instance with default configuration
@@ -102,16 +103,25 @@ export const updateTaskTime = async (taskId: string, additionalMinutes: number):
 };
 
 // AI endpoints
-export const checkAIStatus = async (): Promise<{ available: boolean; model?: string }> => {
+export const checkAIStatus = async (): Promise<{ available: boolean; model?: string; configured: boolean }> => {
   const response = await api.get('/ai/status');
   return response.data;
 };
 
-export const suggestTaskDescription = async (prompt: string): Promise<AITaskSuggestion> => {
+export const suggestTaskDescription = async (request: TaskDescriptionRequest): Promise<AITaskSuggestion> => {
   const response: AxiosResponse<AITaskSuggestion> = await api.post(
     '/ai/suggest/task-description',
-    { prompt }
+    request
   );
+  return response.data;
+};
+
+export const suggestTaskTitles = async (params: {
+  context: string;
+  project_type?: string;
+  count?: number;
+}): Promise<{ suggestions: string[]; ai_generated: boolean }> => {
+  const response = await api.post('/ai/suggest/task-title', null, { params });
   return response.data;
 };
 

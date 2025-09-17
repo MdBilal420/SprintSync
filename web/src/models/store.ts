@@ -7,12 +7,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice.ts';
 import tasksReducer from './slices/tasksSlice.ts';
 import uiReducer from './slices/uiSlice.ts';
+import aiReducer from './slices/aiSlice.ts';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     tasks: tasksReducer,
     ui: uiReducer,
+    ai: aiReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
