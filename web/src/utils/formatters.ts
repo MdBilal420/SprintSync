@@ -61,21 +61,3 @@ export const getRelativeTime = (dateString: string): string => {
     return `${diffDays}d ago`;
   }
 };
-
-/**
- * Truncate text to specified length with ellipsis
- */
-export const truncateText = (text: string, maxLength: number): string => {
-  if (text.length <= maxLength) {
-    return text;
-  }
-  return text.substring(0, maxLength) + '...';
-};
-
-/**
- * Get progress percentage for a set of tasks
- */
-export const getProgressPercentage = (completed: number, total: number): number => {
-  if (total === 0) return 0;
-  return Math.round((completed / total) * 100);
-};

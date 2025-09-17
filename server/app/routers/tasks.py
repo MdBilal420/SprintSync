@@ -4,7 +4,7 @@ Tasks router.
 Provides endpoints for task management operations.
 """
 
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
@@ -19,7 +19,7 @@ from ..auth import get_current_active_user, get_current_admin_user
 router = APIRouter(prefix="/tasks", tags=["Task Management"])
 
 
-@router.get("/", response_model=List[TaskResponse])
+@router.get("/", response_model=dict)
 async def list_user_tasks(
     status: Optional[TaskStatus] = Query(None, description="Filter tasks by status"),
     skip: int = Query(0, ge=0, description="Number of tasks to skip"),
@@ -42,13 +42,16 @@ async def list_user_tasks(
         db: Database session
         
     Returns:
-        List of user's tasks
+        Paginated list of user's tasks
     """
     query = db.query(Task).filter(Task.user_id == current_user.id)
     
     # Apply status filter if provided
     if status:
         query = query.filter(Task.status == status)
+    
+    # Get total count before pagination
+    total = query.count()
     
     # Apply sorting
     if hasattr(Task, sort_by):
@@ -63,7 +66,33 @@ async def list_user_tasks(
     
     # Apply pagination
     tasks = query.offset(skip).limit(limit).all()
-    return tasks
+    
+    # Calculate pagination info
+    page = (skip // limit) + 1
+    pages = (total + limit - 1) // limit
+    
+    # Convert Task models to TaskResponse format
+    task_responses = []
+    for task in tasks:
+        task_dict = {
+            "id": str(task.id),
+            "title": task.title,
+            "description": task.description,
+            "status": task.status,
+            "total_minutes": task.total_minutes,
+            "user_id": str(task.user_id),
+            "created_at": task.created_at.isoformat(),
+            "updated_at": task.updated_at.isoformat()
+        }
+        task_responses.append(task_dict)
+    
+    return {
+        "items": task_responses,
+        "total": total,
+        "page": page,
+        "size": limit,
+        "pages": pages
+    }
 
 
 @router.post("/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
@@ -131,6 +160,57 @@ async def get_task(
     return task
 
 
+@router.patch("/{task_id}", response_model=TaskResponse)
+async def partial_update_task(
+    task_id: UUID,
+    task_update: TaskUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Partially update a specific task (PATCH method).
+    
+    Args:
+        task_id: UUID of the task to update
+        task_update: Task update data (partial)
+        current_user: Current authenticated user
+        db: Database session
+        
+    Returns:
+        Updated task information
+        
+    Raises:
+        HTTPException: If task not found or doesn't belong to user
+    """
+    task = db.query(Task).filter(
+        Task.id == task_id,
+        Task.user_id == current_user.id
+    ).first()
+    
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    
+    # Update fields if provided (partial update)
+    if task_update.title is not None:
+        task.title = task_update.title
+    
+    if task_update.description is not None:
+        task.description = task_update.description
+    
+    if task_update.status is not None:
+        task.status = task_update.status
+    
+    if task_update.total_minutes is not None:
+        task.total_minutes = task_update.total_minutes
+    
+    db.commit()
+    db.refresh(task)
+    return task
+
+
 @router.put("/{task_id}", response_model=TaskResponse)
 async def update_task(
     task_id: UUID,
@@ -139,11 +219,11 @@ async def update_task(
     db: Session = Depends(get_db)
 ):
     """
-    Update a specific task.
+    Completely update a specific task (PUT method).
     
     Args:
         task_id: UUID of the task to update
-        task_update: Task update data
+        task_update: Task update data (complete replacement)
         current_user: Current authenticated user
         db: Database session
         
