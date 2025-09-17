@@ -21,11 +21,20 @@ from ..auth import (
 )
 from ..auth.schemas import Token, UserLogin, UserRegister, PasswordChange
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 security = HTTPBearer()
 
 
-@router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", 
+    response_model=UserResponse, 
+    status_code=status.HTTP_201_CREATED,
+    summary="Register New User",
+    description="Create a new user account with email and password",
+    responses={
+        201: {"description": "User successfully created"},
+        400: {"description": "Email already exists or passwords don't match"}
+    }
+)
 async def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
     """
     Register a new user.
@@ -70,7 +79,15 @@ async def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
     return db_user
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", 
+    response_model=Token,
+    summary="User Login",
+    description="Authenticate user credentials and return JWT access token",
+    responses={
+        200: {"description": "Login successful, JWT token returned"},
+        401: {"description": "Invalid email or password"}
+    }
+)
 async def login_user(user_credentials: UserLogin, db: Session = Depends(get_db)):
     """
     Authenticate user and return JWT token.
