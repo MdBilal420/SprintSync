@@ -13,6 +13,7 @@ export interface User {
 export interface UserCreate {
   email: string;
   password: string;
+  confirm_password: string;
   is_admin?: boolean;
 }
 

@@ -37,7 +37,7 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      await handleRegister({ email, password });
+      await handleRegister({ email, password, confirm_password: confirmPassword });
       // Navigation is handled by the controller
     } catch (err) {
       // Error handling is managed by the controller
