@@ -16,7 +16,7 @@ from ..models.task import Task, TaskStatus
 from ..schemas.task import TaskResponse, TaskCreate, TaskUpdate, TaskWithUser
 from ..auth import get_current_active_user, get_current_admin_user
 
-router = APIRouter(prefix="/tasks", tags=["tasks"])
+router = APIRouter(prefix="/tasks", tags=["Task Management"])
 
 
 @router.get("/", response_model=List[TaskResponse])

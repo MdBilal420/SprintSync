@@ -10,12 +10,12 @@ Backend Authentication,JWT authentication system,3,5,3.5,"Complete JWT authentic
 Backend Authentication,Password hashing and validation,1,2,,Secure password handling with bcrypt
 Backend Authentication,User CRUD endpoints,2,4,2.0,"Complete user management with profile, admin controls, and statistics"
 Backend Core,Task CRUD endpoints,3,5,2.5,"Full task lifecycle with status transitions, time tracking, and advanced filtering"
-Backend Core,API documentation (Swagger),0.5,1.5,,Auto-generated docs with proper schemas
+Backend Core,API documentation (Swagger),0.5,1.5,0.5,"Enhanced FastAPI auto-generated docs with comprehensive descriptions and examples"
 Backend Core,Structured logging implementation,1.5,3,,Request/response logging with error tracking
-AI Integration,Choose AI feature (description vs planning),0.5,1,,Decision between task description or daily planning
-AI Integration,OpenAI API integration,2,4,,API calls with proper error handling
-AI Integration,AI suggest endpoint implementation,1.5,3,,Backend endpoint for AI suggestions
-AI Integration,Fallback mechanism for AI failures,1,2,,Graceful degradation when AI unavailable
+AI Integration,Choose AI feature (description vs planning),0.5,1,0.5,"Selected task description generation over daily planning for immediate engineering value"
+AI Integration,OpenAI API integration,2,4,2.5,"Complete OpenAI integration with client configuration and error handling"
+AI Integration,AI suggest endpoint implementation,1.5,3,1.5,"Task description generation endpoint with comprehensive fallback mechanisms"
+AI Integration,Fallback mechanism for AI failures,1,2,0.5,"Graceful degradation when AI unavailable with intelligent fallback responses"
 Frontend Foundation,React + Vite project setup,1.5,3,,Initialize with TypeScript and routing
 Frontend Foundation,Project structure and folder organization,0.5,1.5,,Components services hooks organization
 Frontend Foundation,API service layer setup,1.5,3,,HTTP client with authentication handling

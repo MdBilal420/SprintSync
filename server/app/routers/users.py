@@ -14,7 +14,7 @@ from ..models.user import User
 from ..schemas.user import UserResponse, UserUpdate
 from ..auth import get_current_active_user, get_current_admin_user, hash_password
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["User Management"])
 
 
 @router.get("/", response_model=List[UserResponse])
