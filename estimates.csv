@@ -5,7 +5,7 @@ Setup,Git repository initialization,0.5,1,0.5,Initial commit with meaningful str
 Backend Foundation,FastAPI basic setup and configuration,1.5,3,2.5,FastAPI v0.116.2 with CORS and auto-docs complete
 Backend Foundation,SQLAlchemy models (User and Task),2,4,3.0,User and Task models with relationships and schemas complete
 Backend Foundation,Alembic migrations setup,1.5,3,2.0,Alembic configured with migrations and utility script
-Backend Foundation,Cloud SQL instance and connection,2,4,,GCP setup and environment configuration
+Backend Foundation,Cloud SQL instance and connection,2,4,2.5,"GCP Cloud SQL PostgreSQL instance created with development and production configurations"
 Backend Authentication,JWT authentication system,3,5,,Login/register endpoints with token management
 Backend Authentication,Password hashing and validation,1,2,,Secure password handling with bcrypt
 Backend Authentication,User CRUD endpoints,2,4,,User management API with proper validation
