@@ -20,14 +20,12 @@ interface Modal {
 interface UIState {
   notifications: Notification[];
   modal: Modal;
-  sidebarOpen: boolean;
   globalLoading: boolean;
 }
 
 const initialState: UIState = {
   notifications: [],
   modal: { type: null },
-  sidebarOpen: false,
   globalLoading: false,
 };
 
@@ -47,20 +45,11 @@ const uiSlice = createSlice({
         notification => notification.id !== action.payload
       );
     },
-    clearNotifications: (state) => {
-      state.notifications = [];
-    },
     openModal: (state, action: PayloadAction<Modal>) => {
       state.modal = action.payload;
     },
     closeModal: (state) => {
       state.modal = { type: null };
-    },
-    toggleSidebar: (state) => {
-      state.sidebarOpen = !state.sidebarOpen;
-    },
-    setSidebarOpen: (state, action: PayloadAction<boolean>) => {
-      state.sidebarOpen = action.payload;
     },
     setGlobalLoading: (state, action: PayloadAction<boolean>) => {
       state.globalLoading = action.payload;
@@ -71,11 +60,8 @@ const uiSlice = createSlice({
 export const {
   addNotification,
   removeNotification,
-  clearNotifications,
   openModal,
   closeModal,
-  toggleSidebar,
-  setSidebarOpen,
   setGlobalLoading,
 } = uiSlice.actions;
 

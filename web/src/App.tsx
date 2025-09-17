@@ -2,15 +2,15 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
-import { store } from './models/store.ts';
-import Layout from './components/layout/Layout.tsx';
-import LoadingSpinner from './components/common/LoadingSpinner.tsx';
-import LoginPage from './pages/auth/LoginPage.tsx';
-import RegisterPage from './pages/auth/RegisterPage.tsx';
-import DashboardPage from './pages/dashboard/DashboardPage.tsx';
-import TasksPage from './pages/tasks/TasksPage.tsx';
-import NotificationProvider from './components/common/NotificationProvider.tsx';
-import { useAuthController } from './controllers/authController.ts';
+import { store } from './models/store';
+import Layout from './components/layout/Layout';
+import LoadingSpinner from './components/common/LoadingSpinner';
+import LoginPage from './pages/auth/LoginPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import DashboardPage from './pages/dashboard/DashboardPage';
+import TasksPage from './pages/tasks/TasksPage';
+import NotificationProvider from './components/common/NotificationProvider';
+import { useAuthController } from './controllers/authController';
 
 // Create a React Query client
 const queryClient = new QueryClient({

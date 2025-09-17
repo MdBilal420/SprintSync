@@ -5,7 +5,7 @@
 
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import type { Task, TaskCreate, TaskUpdate } from '../../types/index.ts';
-import apiService from '../api';
+import * as apiService from '../api';
 
 interface TasksState {
   tasks: Task[];
@@ -125,12 +125,6 @@ const tasksSlice = createSlice({
     setFilters: (state, action: PayloadAction<Partial<TasksState['filters']>>) => {
       state.filters = { ...state.filters, ...action.payload };
     },
-    clearCurrentTask: (state) => {
-      state.currentTask = null;
-    },
-    setCurrentPage: (state, action: PayloadAction<number>) => {
-      state.currentPage = action.payload;
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -170,6 +164,10 @@ const tasksSlice = createSlice({
       })
       .addCase(createTask.fulfilled, (state, action) => {
         state.isLoading = false;
+        // Ensure tasks is always an array before calling unshift
+        if (!state.tasks) {
+          state.tasks = [];
+        }
         state.tasks.unshift(action.payload);
         state.totalTasks += 1;
       })
@@ -182,6 +180,10 @@ const tasksSlice = createSlice({
         state.error = null;
       })
       .addCase(updateTask.fulfilled, (state, action) => {
+        // Ensure tasks is always an array
+        if (!state.tasks) {
+          state.tasks = [];
+        }
         const index = state.tasks.findIndex(task => task.id === action.payload.id);
         if (index !== -1) {
           state.tasks[index] = action.payload;
@@ -198,6 +200,10 @@ const tasksSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
+        // Ensure tasks is always an array
+        if (!state.tasks) {
+          state.tasks = [];
+        }
         state.tasks = state.tasks.filter(task => task.id !== action.payload);
         state.totalTasks -= 1;
         if (state.currentTask?.id === action.payload) {
@@ -209,6 +215,10 @@ const tasksSlice = createSlice({
       })
       // Update task time
       .addCase(updateTaskTime.fulfilled, (state, action) => {
+        // Ensure tasks is always an array
+        if (!state.tasks) {
+          state.tasks = [];
+        }
         const index = state.tasks.findIndex(task => task.id === action.payload.id);
         if (index !== -1) {
           state.tasks[index] = action.payload;
@@ -220,5 +230,5 @@ const tasksSlice = createSlice({
   },
 });
 
-export const { clearError, setFilters, clearCurrentTask, setCurrentPage } = tasksSlice.actions;
+export const { clearError, setFilters } = tasksSlice.actions;
 export default tasksSlice.reducer;
