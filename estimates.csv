@@ -1,8 +1,8 @@
 Story,Task,Estimate min (hr),Estimate max (hr),Actual,Comment
-Setup,Project structure creation,1,2,,
-Setup,Time estimation and planning,0.5,1,,
-Setup,Git repository initialization,0.5,1,,
-Backend Foundation,FastAPI basic setup and configuration,1.5,3,,Main app setup with CORS and basic endpoints
+Setup,Project structure creation,1,2,1.5,Created server/web folders with clean architecture
+Setup,Time estimation and planning,0.5,1,0.5,Created comprehensive estimates.csv file
+Setup,Git repository initialization,0.5,1,0.5,Initial commit with meaningful structure
+Backend Foundation,FastAPI basic setup and configuration,1.5,3,2.5,FastAPI v0.116.2 with CORS and auto-docs complete
 Backend Foundation,SQLAlchemy models (User and Task),2,4,,Database schema design and relationships
 Backend Foundation,Alembic migrations setup,1.5,3,,Database migration scripts and configuration
 Backend Foundation,Cloud SQL instance and connection,2,4,,GCP setup and environment configuration
