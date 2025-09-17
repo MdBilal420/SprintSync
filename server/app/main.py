@@ -7,6 +7,9 @@ Main entry point for the SprintSync backend API.
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Import routers
+from .routers import auth_router, users_router, tasks_router
+
 # Note: Database tables are now managed by Alembic migrations
 # Run 'alembic upgrade head' to create/update database schema
 
@@ -25,6 +28,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include API routers
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(tasks_router)
 
 @app.get("/")
 async def root():
@@ -45,6 +53,12 @@ async def health_check():
             "database": "alembic-managed",
             "models": "User, Task",
             "migrations": "ready",
+            "authentication": "jwt-enabled",
+            "endpoints": {
+                "auth": "/auth (register, login, me)",
+                "users": "/users (profile, management)",
+                "tasks": "/tasks (CRUD operations)"
+            },
             "ai": "pending"
         }
     }
