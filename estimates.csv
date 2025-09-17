@@ -8,8 +8,8 @@ Backend Foundation,Alembic migrations setup,1.5,3,2.0,Alembic configured with mi
 Backend Foundation,Cloud SQL instance and connection,2,4,2.5,"GCP Cloud SQL PostgreSQL instance created with development and production configurations"
 Backend Authentication,JWT authentication system,3,5,3.5,"Complete JWT authentication with registration, login, and protected endpoints"
 Backend Authentication,Password hashing and validation,1,2,,Secure password handling with bcrypt
-Backend Authentication,User CRUD endpoints,2,4,,User management API with proper validation
-Backend Core,Task CRUD endpoints,3,5,,Task management with status transitions
+Backend Authentication,User CRUD endpoints,2,4,2.0,"Complete user management with profile, admin controls, and statistics"
+Backend Core,Task CRUD endpoints,3,5,2.5,"Full task lifecycle with status transitions, time tracking, and advanced filtering"
 Backend Core,API documentation (Swagger),0.5,1.5,,Auto-generated docs with proper schemas
 Backend Core,Structured logging implementation,1.5,3,,Request/response logging with error tracking
 AI Integration,Choose AI feature (description vs planning),0.5,1,,Decision between task description or daily planning
