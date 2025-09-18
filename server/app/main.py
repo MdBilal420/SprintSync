@@ -16,6 +16,9 @@ from .middleware.logging_middleware import LoggingMiddleware
 # Import logging configuration
 from .core.logging_config import setup_logging
 
+# Import database initialization
+from .database.connection import create_tables, test_connection
+
 # Setup logging
 setup_logging()
 
@@ -75,6 +78,29 @@ app.include_router(users_router)
 app.include_router(tasks_router)
 app.include_router(ai_router)
 
+# Create tables on startup if they don't exist
+@app.on_event("startup")
+async def startup_event():
+    """Create database tables on startup if they don't exist."""
+    print("🔧 Starting database initialization...")
+    try:
+        # Test connection first
+        if test_connection():
+            print("✅ Database connection successful")
+            # Create tables
+            create_tables()
+            print("✅ Database tables created successfully")
+        else:
+            print("❌ Database connection failed")
+    except Exception as e:
+        print(f"❌ Error during database initialization: {e}")
+        # Fallback: try to create tables anyway
+        try:
+            create_tables()
+            print("✅ Database tables created successfully (fallback)")
+        except Exception as fallback_e:
+            print(f"❌ Fallback database creation also failed: {fallback_e}")
+
 @app.get("/", tags=["Root"], summary="API Status", description="Get basic API information and status")
 async def root():
     """Get API status and basic information."""
@@ -99,12 +125,19 @@ async def health_check():
     - Available endpoints
     - Feature availability
     """
+    db_status = "unknown"
+    try:
+        from .database.connection import test_connection
+        db_status = "healthy" if test_connection() else "unhealthy"
+    except:
+        db_status = "error"
+        
     return {
         "status": "healthy", 
         "environment": "development",
         "components": {
             "api": "operational",
-            "database": "alembic-managed",
+            "database": db_status,
             "models": "User, Task",
             "migrations": "ready",
             "authentication": "jwt-enabled",
@@ -120,4 +153,6 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
