@@ -17,7 +17,6 @@ SprintSync/
 ├── server/          # FastAPI backend
 ├── web/            # React frontend
 ├── docs/           # Documentation
-├── docker-compose.yml
 └── README.md
 ```
 
@@ -30,11 +29,25 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
+# Environment setup
+# Copy the appropriate environment file:
+# For local development: cp .env.local .env
+# For production: cp .env.production .env
+# Then edit the .env file with your configuration
+
 # Frontend setup
 cd ../web
 npm install
 npm run dev
 ```
+
+## Environment Configuration
+
+The project uses two environment files in the `server/` directory:
+- `.env.local` - For local development
+- `.env.production` - For production deployment
+
+Copy the appropriate file to `server/.env` and configure the values for your environment.
 
 ## Development Status
 
