@@ -149,8 +149,7 @@ def main():
         print("  migrate           Run database migrations")
         print("  status            Show environment status")
         print("  setup-cloud-sql   Guide through Cloud SQL setup")
-        print("  load-dev          Load development environment (SQLite)")
-        print("  load-cloud-dev    Load cloud development environment (Cloud SQL)")
+        print("  load-local        Load local development environment")
         print("  load-prod         Load production environment")
         return
     
@@ -159,14 +158,12 @@ def main():
     # Load environment first for commands that need it
     if command in ["test-connection", "migrate", "status"]:
         # Check if a specific environment was loaded in a previous command
-        # Otherwise, try to load .env.development by default
-        if not os.getenv("ENVIRONMENT") and os.path.exists(".env.development"):
-            load_env_file(".env.development")
+        # Otherwise, try to load .env by default
+        if not os.getenv("ENVIRONMENT") and os.path.exists(".env"):
+            load_env_file(".env")
     
-    if command == "load-dev":
-        load_env_file(".env.development")
-    elif command == "load-cloud-dev":
-        load_env_file(".env.cloud-dev")
+    if command == "load-local":
+        load_env_file(".env.local")
     elif command == "load-prod":
         load_env_file(".env.production")
     elif command == "test-connection":

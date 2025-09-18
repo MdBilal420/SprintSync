@@ -9,12 +9,14 @@ server/
 ├── app/
 │   ├── models/         # SQLAlchemy models
 │   ├── schemas/        # Pydantic schemas
-│   ├── crud/          # Database operations
-│   ├── api/           # API endpoints
+│   ├── auth/           # Authentication
+│   ├── ai/             # AI integration
 │   ├── core/          # Core configuration
 │   ├── database/      # Database setup
+│   ├── middleware/     # Custom middleware
+│   ├── routers/        # API endpoints
 │   └── main.py        # FastAPI app entry point
-├── tests/             # Test files
+├── alembic/           # Database migrations
 ├── requirements.txt   # Python dependencies
 └── Dockerfile        # Docker configuration
 ```
@@ -28,6 +30,22 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+## Environment Configuration
+
+The project uses environment files for configuration. Copy the appropriate template:
+
+For local development:
+```bash
+cp .env.local .env
+```
+
+For production deployment:
+```bash
+cp .env.production .env
+```
+
+Then edit the `.env` file with your specific configuration.
+
 ## Deployment
 
 ### Prerequisites
@@ -36,13 +54,6 @@ uvicorn app.main:app --reload
 2. Docker installed locally
 3. Google Cloud SDK installed
 4. Domain name (optional, for custom domain)
-
-### Environment Configuration
-
-Create the appropriate environment files:
-- `.env.development` for local development
-- `.env.cloud-dev` for cloud development
-- `.env.production` for production
 
 ### Docker Deployment
 
