@@ -14,7 +14,13 @@ import type {
   AuthTokens,
   PaginatedResponse,
   AITaskSuggestion,
-  TaskDescriptionRequest
+  TaskDescriptionRequest,
+  Project,
+  ProjectCreate,
+  ProjectUpdate,
+  ProjectMember,
+  ProjectMemberCreate,
+  ProjectMemberUpdate
 } from '../types/index.ts';
 
 // Create axios instance with default configuration
@@ -64,8 +70,60 @@ export const getCurrentUser = async (): Promise<User> => {
   return response.data;
 };
 
+// Project endpoints
+export const getProjects = async (params?: {
+  skip?: number;
+  limit?: number;
+}): Promise<PaginatedResponse<Project>> => {
+  const response: AxiosResponse<PaginatedResponse<Project>> = await api.get('/projects/', { params });
+  return response.data;
+};
+
+export const getProject = async (projectId: string): Promise<Project> => {
+  const response: AxiosResponse<Project> = await api.get(`/projects/${projectId}`);
+  return response.data;
+};
+
+export const createProject = async (projectData: ProjectCreate): Promise<Project> => {
+  const response: AxiosResponse<Project> = await api.post('/projects/', projectData);
+  return response.data;
+};
+
+export const updateProject = async (projectId: string, projectData: ProjectUpdate): Promise<Project> => {
+  const response: AxiosResponse<Project> = await api.put(`/projects/${projectId}`, projectData);
+  return response.data;
+};
+
+export const deleteProject = async (projectId: string): Promise<void> => {
+  await api.delete(`/projects/${projectId}`);
+};
+
+export const getProjectMembers = async (projectId: string, params?: {
+  skip?: number;
+  limit?: number;
+}): Promise<PaginatedResponse<ProjectMember>> => {
+  const response: AxiosResponse<PaginatedResponse<ProjectMember>> = await api.get(`/projects/${projectId}/members`, { params });
+  return response.data;
+};
+
+export const addProjectMember = async (projectId: string, memberData: ProjectMemberCreate): Promise<ProjectMember> => {
+  const response: AxiosResponse<ProjectMember> = await api.post(`/projects/${projectId}/members`, memberData);
+  return response.data;
+};
+
+export const removeProjectMember = async (projectId: string, userId: string): Promise<void> => {
+  await api.delete(`/projects/${projectId}/members/${userId}`);
+};
+
+export const updateProjectMember = async (projectId: string, userId: string, memberData: ProjectMemberUpdate): Promise<ProjectMember> => {
+  const response: AxiosResponse<ProjectMember> = await api.patch(`/projects/${projectId}/members/${userId}`, memberData);
+  return response.data;
+};
+
 // Task endpoints
 export const getTasks = async (params?: {
+  project_id?: string;
+  assigned_to_id?: string;
   skip?: number;
   limit?: number;
   status?: string;

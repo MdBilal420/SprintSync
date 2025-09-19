@@ -81,11 +81,13 @@ def create_standard_engine(database_url: str):
             echo=True
         )
     else:
-        # PostgreSQL/Cloud SQL configuration
+        # PostgreSQL/Cloud SQL configuration with connection pooling
         return create_engine(
             database_url,
             pool_pre_ping=True,
             pool_recycle=300,
+            pool_size=10,
+            max_overflow=20,
             echo=True
         )
 
@@ -105,6 +107,9 @@ def get_db():
 def create_tables():
     """Create all database tables."""
     from ..models import User, Task
+    # Import new models
+    from ..models.project import Project
+    from ..models.project_member import ProjectMember
     
     if engine is None:
         init_db()
