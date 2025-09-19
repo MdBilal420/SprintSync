@@ -6,7 +6,7 @@ FastAPI backend server for SprintSync.
 
 ```
 server/
-├── app/
+├── app/               # Application source code
 │   ├── models/         # SQLAlchemy models
 │   ├── schemas/        # Pydantic schemas
 │   ├── auth/           # Authentication
@@ -17,8 +17,9 @@ server/
 │   ├── routers/        # API endpoints
 │   └── main.py        # FastAPI app entry point
 ├── alembic/           # Database migrations
+├── scripts/           # Deployment and setup scripts
 ├── requirements.txt   # Python dependencies
-└── Dockerfile        # Docker configuration
+└── Dockerfile         # Docker configuration
 ```
 
 ## Setup
@@ -55,65 +56,72 @@ Then edit the `.env` file with your specific configuration.
 3. Google Cloud SDK installed
 4. Domain name (optional, for custom domain)
 
-### Docker Deployment
+### Automated Deployment
 
-1. Build the Docker image:
+The project includes scripts to automate the deployment process:
+
+1. **Setup GCP Environment**:
    ```bash
-   docker build -t sprintsync-backend .
+   ./scripts/setup-gcp.sh
    ```
 
-2. Run locally:
+2. **Setup Cloud SQL Database**:
    ```bash
-   docker run -p 8000:8000 sprintsync-backend
+   ./scripts/setup-database.sh
    ```
 
-### Google Cloud Run Deployment
-
-1. Authenticate with Google Cloud:
+3. **Deploy to Cloud Run**:
    ```bash
-   gcloud auth login
-   gcloud config set project YOUR_PROJECT_ID
+   ./scripts/gcp-deploy.sh
    ```
 
-2. Enable required services:
-   ```bash
-   gcloud services enable cloudbuild.googleapis.com run.googleapis.com sqladmin.googleapis.com
-   ```
+### Manual Deployment
 
-3. Create Cloud SQL instance:
-   ```bash
-   gcloud sql instances create sprintsync-db \
-     --database-version=POSTGRES_13 \
-     --region=us-central1 \
-     --cpu=1 \
-     --memory=3.75GB \
-     --storage-type=SSD \
-     --storage-size=10GB
-   
-   gcloud sql databases create sprintsync \
-     --instance=sprintsync-db
-   
-   gcloud sql users create sprintsync_user \
-     --instance=sprintsync-db \
-     --password=SECURE_PASSWORD
-   ```
+#### 1. Enable required services:
+```bash
+gcloud services enable cloudbuild.googleapis.com run.googleapis.com sqladmin.googleapis.com
+```
 
-4. Build and deploy to Cloud Run:
-   ```bash
-   gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/sprintsync-backend
-   gcloud run deploy sprintsync-backend \
-     --image gcr.io/YOUR_PROJECT_ID/sprintsync-backend \
-     --platform managed \
-     --region us-central1 \
-     --allow-unauthenticated
-   ```
+#### 2. Create Cloud SQL instance:
+```bash
+gcloud sql instances create sprintsync-db \
+  --database-version=POSTGRES_13 \
+  --region=us-central1 \
+  --cpu=1 \
+  --memory=3.75GB \
+  --storage-type=SSD \
+  --storage-size=10GB
 
-5. Configure environment variables:
-   ```bash
-   gcloud run services update sprintsync-backend \
-     --update-env-vars ENVIRONMENT=production,GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID,CLOUD_SQL_INSTANCE=sprintsync-db,CLOUD_SQL_DATABASE=sprintsync,CLOUD_SQL_USERNAME=sprintsync_user,CLOUD_SQL_PASSWORD=YOUR_PASSWORD,SECRET_KEY=YOUR_SECRET_KEY \
-     --region us-central1
-   ```
+gcloud sql databases create sprintsyncdb \
+  --instance=sprintsync-db
+
+gcloud sql users create sprintsync_user \
+  --instance=sprintsync-db \
+  --password=SECURE_PASSWORD
+```
+
+#### 3. Build and deploy to Cloud Run:
+```bash
+# Build the Docker image
+docker build -t gcr.io/YOUR_PROJECT_ID/sprintsync-backend .
+
+# Push to Google Container Registry
+docker push gcr.io/YOUR_PROJECT_ID/sprintsync-backend
+
+# Deploy to Cloud Run
+gcloud run deploy sprintsync-backend \
+  --image gcr.io/YOUR_PROJECT_ID/sprintsync-backend \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated
+```
+
+#### 4. Configure environment variables:
+```bash
+gcloud run services update sprintsync-backend \
+  --update-env-vars ENVIRONMENT=production,GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID,CLOUD_SQL_INSTANCE=sprintsync-db,CLOUD_SQL_DATABASE=sprintsyncdb,CLOUD_SQL_USERNAME=sprintsync_user,CLOUD_SQL_PASSWORD=YOUR_PASSWORD,SECRET_KEY=YOUR_SECRET_KEY \
+  --region us-central1
+```
 
 ### CI/CD with GitHub Actions
 
