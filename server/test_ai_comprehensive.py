@@ -7,8 +7,8 @@ import os
 import sys
 from pathlib import Path
 
-# Add the app directory to Python path
-sys.path.append(str(Path(__file__).parent / "app"))
+# Add the current directory to Python path so we can import app modules
+sys.path.insert(0, str(Path(__file__).parent))
 
 def test_environment_and_ai():
     """Test environment variables and AI configuration"""
