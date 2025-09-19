@@ -9,6 +9,10 @@ import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import TasksPage from './pages/tasks/TasksPage';
+import ProjectsPage from './pages/projects/ProjectsPage';
+import ProjectDetailsPage from './pages/projects/ProjectDetailsPage';
+import TeamMembersPage from './pages/projects/TeamMembersPage';
+import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import NotificationProvider from './components/common/NotificationProvider';
 import { useAuthController } from './controllers/authController';
 
@@ -107,6 +111,46 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <TasksPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tasks/:taskId"
+                element={
+                  <ProtectedRoute>
+                    <TasksPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/projects"
+                element={
+                  <ProtectedRoute>
+                    <ProjectsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/projects/:projectId"
+                element={
+                  <ProtectedRoute>
+                    <ProjectDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/team-members"
+                element={
+                  <ProtectedRoute>
+                    <TeamMembersPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminDashboardPage />
                   </ProtectedRoute>
                 }
               />

@@ -36,15 +36,19 @@ class Task(Base):
     status = Column(SQLEnum(TaskStatus), default=TaskStatus.TODO, nullable=False)
     total_minutes = Column(Integer, default=0, nullable=False)
     
-    # Foreign key to user
+    # Foreign keys
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=True)
+    assigned_to_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     # Relationships
-    user = relationship("User", back_populates="tasks")
+    user = relationship("User", back_populates="tasks", foreign_keys=[user_id])
+    project = relationship("Project", back_populates="tasks")
+    assigned_to = relationship("User", back_populates="assigned_tasks", foreign_keys=[assigned_to_id])
     
     def __repr__(self):
         return f"<Task(id={self.id}, title={self.title}, status={self.status}, user_id={self.user_id})>"
