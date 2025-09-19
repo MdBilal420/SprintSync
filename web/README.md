@@ -1,69 +1,87 @@
-# React + TypeScript + Vite
+# SprintSync Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend for SprintSync - A lean task management tool for AI consultancy engineers.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 18 with TypeScript
+- Vite for fast development and building
+- Tailwind CSS for styling
+- Redux Toolkit for state management
+- Axios for HTTP requests
+- React Router for navigation
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 16+
+- npm or yarn
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Setup
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Install dependencies:
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Create a `.env` file based on `.env.example`:
+```bash
+cp .env.example .env
+```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Development
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Available Scripts
+
+```bash
+# Start development server with default API (localhost:8000)
+npm run dev
+
+# Start development server with local API
+npm run dev:local
+
+# Start development server with production API
+npm run dev:prod
+
+# Build for production
+npm run build
+
+# Build for local environment
+npm run build:local
+
+# Build for production environment
+npm run build:prod
+
+# Lint the code
+npm run lint
+
+# Preview the production build
+npm run preview
+```
+
+### Environment Variables
+
+The frontend can connect to different backend APIs based on environment variables:
+
+- `VITE_API_URL`: Backend API URL
+  - For local development: `http://localhost:8000`
+  - For production: `https://sprintsync-backend-mvtgfeo4pa-uc.a.run.app`
+
+You can switch between APIs by:
+1. Setting the `VITE_API_URL` in your `.env` file
+2. Using the specific npm scripts (`npm run dev:local` or `npm run dev:prod`)
+3. Setting the environment variable when running the command:
+   ```bash
+   VITE_API_URL=http://localhost:8000 npm run dev
+   ```
+
+## Project Structure
+
+```
+src/
+├── components/     # Reusable UI components
+├── controllers/    # API service wrappers
+├── models/         # Redux store, slices, and API hooks
+├── pages/          # Page components
+├── types/          # TypeScript interfaces and types
+└── utils/          # Utility functions
 ```
