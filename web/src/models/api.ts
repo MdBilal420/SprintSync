@@ -72,7 +72,7 @@ export const getTasks = async (params?: {
   sort_by?: string;
   sort_order?: 'asc' | 'desc';
 }): Promise<PaginatedResponse<Task>> => {
-  const response: AxiosResponse<PaginatedResponse<Task>> = await api.get('/tasks', { params });
+  const response: AxiosResponse<PaginatedResponse<Task>> = await api.get('/tasks/', { params });
   return response.data;
 };
 
@@ -82,7 +82,7 @@ export const getTask = async (taskId: string): Promise<Task> => {
 };
 
 export const createTask = async (taskData: TaskCreate): Promise<Task> => {
-  const response: AxiosResponse<Task> = await api.post('/tasks', taskData);
+  const response: AxiosResponse<Task> = await api.post('/tasks/', taskData);
   return response.data;
 };
 
