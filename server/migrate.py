@@ -46,6 +46,13 @@ Commands:
     history     - Show migration history
     reset       - Reset database (WARNING: Deletes all data)
 
+Environment:
+    The application uses environment files for configuration:
+    - Copy .env.local to .env for local development
+    - Copy .env.production to .env for production
+    
+    Or set environment variables directly.
+
 Examples:
     python migrate.py upgrade
     python migrate.py create "add user preferences"

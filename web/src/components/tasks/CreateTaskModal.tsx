@@ -398,33 +398,33 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
               </div>
             )}
           </div>
+          
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 mt-4">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="btn-secondary w-full sm:w-auto"
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-primary w-full sm:w-auto min-w-[120px] flex items-center justify-center"
+              disabled={isLoading || !formData.title.trim()}
+            >
+              {isLoading ? (
+                <>
+                  <LoadingSpinner size="sm" className="mr-2" />
+                  Creating...
+                </>
+              ) : (
+                'Create Task'
+              )}
+            </button>
+          </div>
         </form>
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 p-4 sm:p-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="btn-secondary w-full sm:w-auto"
-            disabled={isLoading}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="btn-primary w-full sm:w-auto min-w-[120px] flex items-center justify-center"
-            disabled={isLoading || !formData.title.trim()}
-          >
-            {isLoading ? (
-              <>
-                <LoadingSpinner size="sm" className="mr-2" />
-                Creating...
-              </>
-            ) : (
-              'Create Task'
-            )}
-          </button>
-        </div>
       </div>
     </div>
   );
