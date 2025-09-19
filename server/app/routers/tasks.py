@@ -15,12 +15,19 @@ from ..models.user import User
 from ..models.task import Task, TaskStatus
 from ..schemas.task import TaskResponse, TaskCreate, TaskUpdate, TaskWithUser
 from ..auth import get_current_active_user, get_current_admin_user
+from ..crud import (
+    get_tasks, get_user_tasks, get_project_tasks, get_user_project_tasks,
+    get_assigned_tasks, get_project_assigned_tasks, create_task, update_task,
+    delete_task, can_view_task, can_edit_task, get_task as crud_get_task
+)
 
 router = APIRouter(prefix="/tasks", tags=["Task Management"])
 
 
 @router.get("/", response_model=dict)
 async def list_user_tasks(
+    project_id: Optional[UUID] = Query(None, description="Filter tasks by project ID"),
+    assigned_to_id: Optional[UUID] = Query(None, description="Filter tasks assigned to user"),
     status: Optional[TaskStatus] = Query(None, description="Filter tasks by status"),
     skip: int = Query(0, ge=0, description="Number of tasks to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of tasks to return"),
@@ -33,6 +40,8 @@ async def list_user_tasks(
     List current user's tasks with optional filtering and sorting.
     
     Args:
+        project_id: Optional project ID to filter tasks
+        assigned_to_id: Optional user ID to filter assigned tasks
         status: Optional status filter
         skip: Number of tasks to skip for pagination
         limit: Maximum number of tasks to return
@@ -44,28 +53,46 @@ async def list_user_tasks(
     Returns:
         Paginated list of user's tasks
     """
-    query = db.query(Task).filter(Task.user_id == current_user.id)
+    # If project_id is specified, get project tasks
+    if project_id:
+        if assigned_to_id:
+            # Get tasks assigned to specific user within project
+            tasks = get_project_assigned_tasks(db, project_id, assigned_to_id, skip, limit)
+            total = len(get_project_assigned_tasks(db, project_id, assigned_to_id, 0, 1000000))
+        else:
+            # Get all tasks within project
+            tasks = get_project_tasks(db, project_id, skip, limit)
+            total = len(get_project_tasks(db, project_id, 0, 1000000))
+    else:
+        # Get user's tasks (original behavior)
+        if assigned_to_id:
+            # Get tasks assigned to specific user
+            tasks = get_assigned_tasks(db, assigned_to_id, skip, limit)
+            total = len(get_assigned_tasks(db, assigned_to_id, 0, 1000000))
+        else:
+            # Get user's own tasks
+            tasks = get_user_tasks(db, current_user.id, skip, limit)
+            total = len(get_user_tasks(db, current_user.id, 0, 1000000))
     
     # Apply status filter if provided
     if status:
-        query = query.filter(Task.status == status)
+        tasks = [task for task in tasks if task.status == status]
+        total = len(tasks)
     
-    # Get total count before pagination
-    total = query.count()
+    # Apply sorting at database level for better performance
+    from sqlalchemy import desc, asc
     
-    # Apply sorting
-    if hasattr(Task, sort_by):
-        sort_column = getattr(Task, sort_by)
-        if sort_order.lower() == "asc":
-            query = query.order_by(asc(sort_column))
-        else:
-            query = query.order_by(desc(sort_column))
-    else:
-        # Default sort by created_at desc
-        query = query.order_by(desc(Task.created_at))
-    
-    # Apply pagination
-    tasks = query.offset(skip).limit(limit).all()
+    # Validate sort_by parameter to prevent issues
+    valid_sort_fields = ['created_at', 'updated_at', 'title', 'status', 'total_minutes']
+    if sort_by in valid_sort_fields and hasattr(Task, sort_by):
+        try:
+            if sort_order.lower() == "asc":
+                tasks.sort(key=lambda x: getattr(x, sort_by) or '')
+            else:
+                tasks.sort(key=lambda x: getattr(x, sort_by) or '', reverse=True)
+        except Exception:
+            # If sorting fails, continue without sorting
+            pass
     
     # Calculate pagination info
     page = (skip // limit) + 1
@@ -81,6 +108,8 @@ async def list_user_tasks(
             "status": task.status,
             "total_minutes": task.total_minutes,
             "user_id": str(task.user_id),
+            "project_id": str(task.project_id) if task.project_id else None,
+            "assigned_to_id": str(task.assigned_to_id) if task.assigned_to_id else None,
             "created_at": task.created_at.isoformat(),
             "updated_at": task.updated_at.isoformat()
         }
@@ -96,8 +125,10 @@ async def list_user_tasks(
 
 
 @router.post("/", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
-async def create_task(
+async def create_task_endpoint(
     task_create: TaskCreate,
+    project_id: Optional[UUID] = Query(None, description="Project ID to associate task with"),
+    assigned_to_id: Optional[UUID] = Query(None, description="User ID to assign task to"),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -106,23 +137,39 @@ async def create_task(
     
     Args:
         task_create: Task creation data
+        project_id: Optional project ID to associate task with
+        assigned_to_id: Optional user ID to assign task to
         current_user: Current authenticated user
         db: Database session
         
     Returns:
         Created task information
     """
-    db_task = Task(
-        title=task_create.title,
-        description=task_create.description,
-        user_id=current_user.id,
-        status=TaskStatus.TODO,
-        total_minutes=0
-    )
+    # If project_id is specified, verify user has access to project
+    if project_id:
+        from ..crud import is_project_member
+        if not is_project_member(db, project_id, current_user.id) and not current_user.is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this project"
+            )
     
-    db.add(db_task)
-    db.commit()
-    db.refresh(db_task)
+    # If assigned_to_id is specified (and different from current user), verify it's valid
+    if assigned_to_id and assigned_to_id != current_user.id:
+        # Only allow assigning to self or if user has permission (project admin, owner, or system admin)
+        from ..crud import is_project_admin, is_project_owner
+        can_assign = (
+            current_user.is_admin or
+            (project_id and (is_project_owner(db, project_id, current_user.id) or 
+                           is_project_admin(db, project_id, current_user.id)))
+        )
+        if not can_assign:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to assign tasks to other users"
+            )
+    
+    db_task = create_task(db, task_create, current_user.id, project_id, assigned_to_id)
     return db_task
 
 
@@ -144,13 +191,16 @@ async def get_task(
         Task information
         
     Raises:
-        HTTPException: If task not found or doesn't belong to user
+        HTTPException: If task not found or user doesn't have access
     """
-    task = db.query(Task).filter(
-        Task.id == task_id,
-        Task.user_id == current_user.id
-    ).first()
+    # Check if user can view task
+    if not can_view_task(db, task_id, current_user.id) and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have access to this task"
+        )
     
+    task = crud_get_task(db, task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -180,13 +230,16 @@ async def partial_update_task(
         Updated task information
         
     Raises:
-        HTTPException: If task not found or doesn't belong to user
+        HTTPException: If task not found or user doesn't have access
     """
-    task = db.query(Task).filter(
-        Task.id == task_id,
-        Task.user_id == current_user.id
-    ).first()
+    # Check if user can edit task
+    if not can_edit_task(db, task_id, current_user.id) and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to edit this task"
+        )
     
+    task = crud_get_task(db, task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -212,7 +265,7 @@ async def partial_update_task(
 
 
 @router.put("/{task_id}", response_model=TaskResponse)
-async def update_task(
+async def update_task_endpoint(
     task_id: UUID,
     task_update: TaskUpdate,
     current_user: User = Depends(get_current_active_user),
@@ -231,13 +284,16 @@ async def update_task(
         Updated task information
         
     Raises:
-        HTTPException: If task not found or doesn't belong to user
+        HTTPException: If task not found or user doesn't have access
     """
-    task = db.query(Task).filter(
-        Task.id == task_id,
-        Task.user_id == current_user.id
-    ).first()
+    # Check if user can edit task
+    if not can_edit_task(db, task_id, current_user.id) and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to edit this task"
+        )
     
+    task = crud_get_task(db, task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -282,13 +338,16 @@ async def update_task_status(
         Updated task information
         
     Raises:
-        HTTPException: If task not found or doesn't belong to user
+        HTTPException: If task not found or user doesn't have access
     """
-    task = db.query(Task).filter(
-        Task.id == task_id,
-        Task.user_id == current_user.id
-    ).first()
+    # Check if user can edit task
+    if not can_edit_task(db, task_id, current_user.id) and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to edit this task"
+        )
     
+    task = crud_get_task(db, task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -321,13 +380,16 @@ async def add_time_to_task(
         Updated task information
         
     Raises:
-        HTTPException: If task not found or doesn't belong to user
+        HTTPException: If task not found or user doesn't have access
     """
-    task = db.query(Task).filter(
-        Task.id == task_id,
-        Task.user_id == current_user.id
-    ).first()
+    # Check if user can edit task
+    if not can_edit_task(db, task_id, current_user.id) and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to edit this task"
+        )
     
+    task = crud_get_task(db, task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -341,7 +403,7 @@ async def add_time_to_task(
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_task(
+async def delete_task_endpoint(
     task_id: UUID,
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
@@ -355,13 +417,16 @@ async def delete_task(
         db: Database session
         
     Raises:
-        HTTPException: If task not found or doesn't belong to user
+        HTTPException: If task not found or user doesn't have access
     """
-    task = db.query(Task).filter(
-        Task.id == task_id,
-        Task.user_id == current_user.id
-    ).first()
+    # Check if user can edit task (same permission as editing)
+    if not can_edit_task(db, task_id, current_user.id) and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to delete this task"
+        )
     
+    task = crud_get_task(db, task_id)
     if not task:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -374,6 +439,7 @@ async def delete_task(
 
 @router.get("/stats/summary", response_model=dict)
 async def get_task_statistics(
+    project_id: Optional[UUID] = Query(None, description="Filter statistics by project ID"),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -381,35 +447,31 @@ async def get_task_statistics(
     Get task statistics for the current user.
     
     Args:
+        project_id: Optional project ID to filter statistics
         current_user: Current authenticated user
         db: Database session
         
     Returns:
         Dictionary containing task statistics
     """
-    total_tasks = db.query(Task).filter(Task.user_id == current_user.id).count()
+    from sqlalchemy import func
     
-    todo_tasks = db.query(Task).filter(
-        Task.user_id == current_user.id,
-        Task.status == TaskStatus.TODO
-    ).count()
+    # Build query based on filters
+    query = db.query(Task).filter(Task.user_id == current_user.id)
     
-    in_progress_tasks = db.query(Task).filter(
-        Task.user_id == current_user.id,
-        Task.status == TaskStatus.IN_PROGRESS
-    ).count()
+    # Apply project filter if provided
+    if project_id:
+        query = query.filter(Task.project_id == project_id)
     
-    done_tasks = db.query(Task).filter(
-        Task.user_id == current_user.id,
-        Task.status == TaskStatus.DONE
-    ).count()
+    total_tasks = query.count()
+    
+    todo_tasks = query.filter(Task.status == TaskStatus.TODO).count()
+    in_progress_tasks = query.filter(Task.status == TaskStatus.IN_PROGRESS).count()
+    done_tasks = query.filter(Task.status == TaskStatus.DONE).count()
     
     # Calculate total time spent
-    total_minutes_result = db.query(Task.total_minutes).filter(
-        Task.user_id == current_user.id
-    ).all()
-    
-    total_minutes = sum(minutes[0] for minutes in total_minutes_result)
+    total_minutes_result = query.with_entities(func.sum(Task.total_minutes)).scalar()
+    total_minutes = total_minutes_result or 0
     total_hours = round(total_minutes / 60, 2) if total_minutes > 0 else 0
     
     return {
@@ -427,6 +489,7 @@ async def get_task_statistics(
 @router.get("/admin/all", response_model=List[TaskWithUser])
 async def list_all_tasks(
     status: Optional[TaskStatus] = Query(None, description="Filter tasks by status"),
+    project_id: Optional[UUID] = Query(None, description="Filter tasks by project ID"),
     skip: int = Query(0, ge=0, description="Number of tasks to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of tasks to return"),
     current_user: User = Depends(get_current_admin_user),
@@ -437,6 +500,7 @@ async def list_all_tasks(
     
     Args:
         status: Optional status filter
+        project_id: Optional project ID filter
         skip: Number of tasks to skip for pagination
         limit: Maximum number of tasks to return
         current_user: Current authenticated admin user
@@ -447,9 +511,12 @@ async def list_all_tasks(
     """
     query = db.query(Task)
     
-    # Apply status filter if provided
+    # Apply filters if provided
     if status:
         query = query.filter(Task.status == status)
+    
+    if project_id:
+        query = query.filter(Task.project_id == project_id)
     
     # Sort by created_at desc and apply pagination
     tasks = query.order_by(desc(Task.created_at)).offset(skip).limit(limit).all()

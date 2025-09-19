@@ -43,15 +43,22 @@ export const registerUser = createAsyncThunk(
   'auth/register',
   async (userData: UserCreate, { rejectWithValue }) => {
     try {
-      await apiService.register(userData);
+      // Register the user
+      const user = await apiService.register(userData);
+      
+      // Small delay to ensure registration is fully processed
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Login with the same credentials
       const tokens = await apiService.login({
         email: userData.email,
         password: userData.password,
       });
+      
       // Store the token immediately so the next API call can use it
       localStorage.setItem('auth_token', tokens.access_token);
-      const user = await apiService.getCurrentUser();
-      return { tokens, user };
+      const currentUser = await apiService.getCurrentUser();
+      return { tokens, user: currentUser };
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.detail || 'Registration failed');
     }
