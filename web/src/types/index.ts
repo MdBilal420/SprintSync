@@ -7,6 +7,7 @@ export interface User {
   id: string;
   email: string;
   is_admin: boolean;
+  description?: string;  // New description field
   created_at: string;
 }
 
