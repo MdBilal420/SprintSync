@@ -140,8 +140,15 @@ export const getTask = async (taskId: string): Promise<Task> => {
 };
 
 export const createTask = async (taskData: TaskCreate, projectId?: string): Promise<Task> => {
-  const params = projectId ? { project_id: projectId } : undefined;
-  const response: AxiosResponse<Task> = await api.post('/tasks/', taskData, { params });
+  // Extract owner_id from taskData if it exists
+  const { owner_id, ...taskCreateData } = taskData;
+  
+  // Build query parameters
+  const params: any = {};
+  if (projectId) params.project_id = projectId;
+  if (owner_id) params.owner_id = owner_id;
+  
+  const response: AxiosResponse<Task> = await api.post('/tasks/', taskCreateData, { params });
   return response.data;
 };
 

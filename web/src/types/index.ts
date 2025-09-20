@@ -86,7 +86,7 @@ export interface TaskCreate {
   title: string;
   description?: string;
   project_id?: string;  // Made optional since it's sent as a query parameter
-  owner_id?: string;
+  owner_id?: string;  // Add owner_id for assignee
 }
 
 export interface TaskUpdate {

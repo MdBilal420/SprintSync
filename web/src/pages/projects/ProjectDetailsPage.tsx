@@ -352,6 +352,7 @@ const ProjectDetailsPage: React.FC = () => {
         isOpen={modal.type === 'createTask'}
         onClose={closeTaskModal}
         projectId={projectId}
+        members={members || []} // Pass members to CreateTaskModal
       />
       
       {selectedTask && projectId && (
