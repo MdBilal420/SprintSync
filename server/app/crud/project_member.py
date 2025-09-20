@@ -4,7 +4,7 @@ CRUD operations for ProjectMember model.
 
 from typing import List, Optional
 from uuid import UUID
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from ..models.project_member import ProjectMember, ProjectRole
 from ..models.user import User
 from ..schemas.project_member import ProjectMemberCreate, ProjectMemberUpdate
@@ -109,3 +109,8 @@ def get_user_role(db: Session, project_id: UUID, user_id: UUID) -> Optional[Proj
         ProjectMember.user_id == user_id
     ).first()
     return member.role if member else None
+
+
+def get_project_members_with_users(db: Session, project_id: UUID, skip: int = 0, limit: int = 100) -> List[ProjectMember]:
+    """Get all members of a project with user information."""
+    return db.query(ProjectMember).options(joinedload(ProjectMember.user)).offset(skip).limit(limit).all()

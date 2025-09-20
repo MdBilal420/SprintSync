@@ -1,31 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useSelector } from 'react-redux';
 
-interface ProjectStats {
-  id: string;
-  name: string;
-  taskCount: number;
-  completedTasks: number;
-  activeTasks: number;
-  membersCount: number;
-}
+import type { RootState } from '../../models/store.ts';
 
 export const ProjectAnalyticsPanel: React.FC = () => {
-  const [projectStats, setProjectStats] = useState<ProjectStats[]>([
-    // Mock data for demonstration
-    { id: '1', name: 'Website Redesign', taskCount: 25, completedTasks: 15, activeTasks: 8, membersCount: 5 },
-    { id: '2', name: 'Mobile App', taskCount: 42, completedTasks: 20, activeTasks: 18, membersCount: 8 },
-    { id: '3', name: 'API Development', taskCount: 18, completedTasks: 12, activeTasks: 4, membersCount: 3 },
-    { id: '4', name: 'Marketing Campaign', taskCount: 30, completedTasks: 25, activeTasks: 3, membersCount: 6 },
-  ]);
+   const {
+      projects,
+      members,
+    } = useSelector((state: RootState) => state.projects);
+    
+    const {tasks} = useSelector((state: RootState) => state.tasks);
 
-  // Calculate overall statistics
-  const totalProjects = projectStats.length;
-  const totalTasks = projectStats.reduce((sum, project) => sum + project.taskCount, 0);
-  const totalCompletedTasks = projectStats.reduce((sum, project) => sum + project.completedTasks, 0);
-  const totalActiveTasks = projectStats.reduce((sum, project) => sum + project.activeTasks, 0);
-  const totalMembers = projectStats.reduce((sum, project) => sum + project.membersCount, 0);
-  const completionRate = totalProjects > 0 ? Math.round((totalCompletedTasks / totalTasks) * 100) : 0;
-
+    const totalProjects = projects.length;
+    const totalTasks = tasks.length;
+    const totalActiveTasks = tasks.filter(task => task.status === 'in_progress').length;
+    const totalMembers = members.length;
+  
   return (
     <div className="space-y-6">
       {/* Summary Cards */}
@@ -56,7 +46,7 @@ export const ProjectAnalyticsPanel: React.FC = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-900">Total Tasks</h3>
-                <p className="text-2xl font-semibold text-gray-900">{totalTasks}</p>
+                <p className="text-2xl font-semibold text-gray-900">{totalTasks ?? "0"}</p>
               </div>
             </div>
           </div>
@@ -72,7 +62,7 @@ export const ProjectAnalyticsPanel: React.FC = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-900">Active Tasks</h3>
-                <p className="text-2xl font-semibold text-gray-900">{totalActiveTasks}</p>
+                <p className="text-2xl font-semibold text-gray-900">{totalActiveTasks ?? "0"}</p>
               </div>
             </div>
           </div>
@@ -88,93 +78,10 @@ export const ProjectAnalyticsPanel: React.FC = () => {
               </div>
               <div className="ml-4">
                 <h3 className="text-sm font-medium text-gray-900">Team Members</h3>
-                <p className="text-2xl font-semibold text-gray-900">{totalMembers}</p>
+                <p className="text-2xl font-semibold text-gray-900">{totalMembers ?? "0"}</p>
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-indigo-100 rounded-md p-3">
-                <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-sm font-medium text-gray-900">Completion Rate</h3>
-                <p className="text-2xl font-semibold text-gray-900">{completionRate}%</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Projects Table */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Project Overview</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Project
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tasks
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Completed
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Active
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Members
-                </th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Progress
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {projectStats.map((project) => (
-                <tr key={project.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {project.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {project.taskCount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {project.completedTasks}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {project.activeTasks}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {project.membersCount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-green-500 rounded-full"
-                          style={{ width: `${project.taskCount > 0 ? (project.completedTasks / project.taskCount) * 100 : 0}%` }}
-                        ></div>
-                      </div>
-                      <div className="ml-2 text-sm text-gray-500">
-                        {project.taskCount > 0 ? Math.round((project.completedTasks / project.taskCount) * 100) : 0}%
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

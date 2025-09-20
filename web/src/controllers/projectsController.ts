@@ -143,6 +143,14 @@ export const useProjectsController = () => {
     dispatch(clearError());
   }, [dispatch]);
 
+  const getProjectName = useCallback(
+    (projectId: string) => {
+      const project = projects.find(project => project.id === projectId);
+      return project?.name || '';
+    },
+    [projects]
+  );
+
   return {
     // State
     projects,
@@ -165,5 +173,6 @@ export const useProjectsController = () => {
     handleAddProjectMember,
     handleRemoveProjectMember,
     handleClearError,
+    getProjectName,
   };
 };

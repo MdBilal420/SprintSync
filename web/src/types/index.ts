@@ -47,6 +47,7 @@ export interface ProjectUpdate {
 }
 
 export interface ProjectMember {
+  user: any;
   id: string;
   project_id: string;
   user_id: string;
