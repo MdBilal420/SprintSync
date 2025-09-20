@@ -46,4 +46,13 @@ server/.env.production
 # Cloud
 .gcloudignore
 
-.sprintsync-secret.json
+# Google Cloud credentials
+sprintsync-secret.json
+*.json
+!package.json
+!package-lock.json
+!tsconfig*.json
+!vite.config.ts
+!tailwind.config.js
+!postcss.config.js
+!eslint.config.js
