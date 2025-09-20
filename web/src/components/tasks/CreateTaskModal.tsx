@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { X, Wand2, Sparkles, Copy, Check } from 'lucide-react';
+import { X, Wand2, Sparkles, Copy, Check, User } from 'lucide-react';
 import { useTasksController } from '../../controllers/tasksController';
 import { useUIController } from '../../controllers/uiController';
 import { useAIController } from '../../controllers/aiController';
@@ -15,9 +15,10 @@ interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   projectId?: string;
+  members?: any[]; // Add members prop for assignee dropdown
 }
 
-const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, projectId }) => {
+const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, projectId, members }) => {
   const { handleCreateTask, isLoading } = useTasksController();
   const { showNotification } = useUIController();
   const { 
@@ -28,9 +29,10 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
     clearSuggestion 
   } = useAIController();
   
-  const [formData, setFormData] = useState<Omit<TaskCreate, 'project_id'>>({
+  const [formData, setFormData] = useState<Omit<TaskCreate, 'project_id'> & { owner_id?: string }>({
     title: '',
     description: '',
+    owner_id: '', // Add owner_id for assignee
   });
 
   const [errors, setErrors] = useState<Partial<Omit<TaskCreate, 'project_id'>>>({});
@@ -203,6 +205,34 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
                 <p className="mt-1 text-sm text-red-600">{errors.description}</p>
               )}
             </div>
+
+            {/* Assignee */}
+            {members && members.length > 0 && (
+              <div>
+                <label htmlFor="assignee" className="block text-sm font-medium text-gray-700 mb-1">
+                  Assignee
+                </label>
+                <div className="relative">
+                  <select
+                    id="assignee"
+                    className="input-field w-full pl-10"
+                    value={formData.owner_id || ''}
+                    onChange={(e) => handleInputChange('owner_id', e.target.value)}
+                    disabled={isLoading}
+                  >
+                    <option value="">Unassigned</option>
+                    {members.map((member: any) => (
+                      <option key={member.user_id} value={member.user_id}>
+                        {member.user?.email || `User ${member.user_id.substring(0, 8)}`}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-4 w-4 text-gray-400" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* AI Suggestion Section */}
             <div className="border-t border-gray-200 pt-4">

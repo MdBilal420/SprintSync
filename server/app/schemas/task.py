@@ -17,7 +17,7 @@ class TaskBase(BaseModel):
 
 class TaskCreate(TaskBase):
     """Schema for creating a new task."""
-    pass
+    owner_id: Optional[UUID] = Field(None, description="User ID to assign task to")
 
 
 class TaskUpdate(BaseModel):
