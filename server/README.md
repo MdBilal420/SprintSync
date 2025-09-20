@@ -56,6 +56,18 @@ Then edit the `.env` file with your specific configuration.
 3. Google Cloud SDK installed
 4. Domain name (optional, for custom domain)
 
+### Authentication Options
+
+The deployment scripts support two authentication methods with Google Cloud:
+
+1. **Interactive Authentication** (default): Requires manual login through a web browser
+2. **Service Account Key Authentication** (Option 2): Uses a service account key file for authentication (less secure but simpler for CI/CD)
+
+To use Service Account Key Authentication:
+1. Create a service account in Google Cloud Console
+2. Generate and download a JSON key file for the service account
+3. When running `./scripts/setup-gcp.sh`, choose option 2 and provide the path to your key file
+
 ### Automated Deployment
 
 The project includes scripts to automate the deployment process:
