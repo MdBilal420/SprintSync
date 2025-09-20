@@ -33,7 +33,7 @@ class User(Base):
     
     # Relationships
     tasks = relationship("Task", back_populates="user", cascade="all, delete-orphan", foreign_keys="Task.user_id")
-    assigned_tasks = relationship("Task", back_populates="assigned_to", foreign_keys="Task.assigned_to_id")
+    owned_tasks = relationship("Task", back_populates="owner", foreign_keys="Task.owner_id")
     owned_projects = relationship("Project", back_populates="owner", cascade="all, delete-orphan")
     project_memberships = relationship("ProjectMember", back_populates="user", cascade="all, delete-orphan")
     
