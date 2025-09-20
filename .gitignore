@@ -45,3 +45,5 @@ server/.env.production
 
 # Cloud
 .gcloudignore
+
+.sprintsync-secret.json
