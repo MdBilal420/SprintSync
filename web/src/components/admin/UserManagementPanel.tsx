@@ -1,23 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ErrorMessage from '../common/ErrorMessage';
-
-interface User {
-  id: string;
-  email: string;
-  is_admin: boolean;
-  created_at: string;
-}
+import { getUsers } from '../../models/api';
+import type { User } from '../../types';
 
 export const UserManagementPanel: React.FC = () => {
-  const [users, setUsers] = useState<User[]>([
-    // Mock data for demonstration
-    { id: '1', email: 'admin@example.com', is_admin: true, created_at: '2023-01-15' },
-    { id: '2', email: 'user1@example.com', is_admin: false, created_at: '2023-02-20' },
-    { id: '3', email: 'user2@example.com', is_admin: false, created_at: '2023-03-10' },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [newUserEmail, setNewUserEmail] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Fetch users from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await getUsers();
+        // Handle both paginated and non-paginated responses
+        if (Array.isArray(response)) {
+          setUsers(response);
+        } else if (response && Array.isArray((response as any).items)) {
+          setUsers((response as any).items);
+        } else {
+          setUsers([]);
+        }
+        setError(null);
+      } catch (err) {
+        setError('Failed to fetch users');
+        console.error('Error fetching users:', err);
+        setUsers([]); // Ensure users is always an array
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleCreateUser = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +52,8 @@ export const UserManagementPanel: React.FC = () => {
       return;
     }
     
-    // Add new user (in a real app, this would be an API call)
+    // In a real app, this would be an API call to create a user
+    // For now, we'll just add it to the local state
     const newUser: User = {
       id: (users.length + 1).toString(),
       email: newUserEmail,
@@ -68,11 +87,19 @@ export const UserManagementPanel: React.FC = () => {
     setUsers(users.filter(user => user.id !== userId));
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="bg-white shadow overflow-hidden sm:rounded-md">
         {/* Create User Form */}
-        <div className="px-6 py-4 border-b border-gray-200">
+        {/* <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">Create New User</h3>
           {error && <ErrorMessage message={error} className="mt-3" />}
           
@@ -108,16 +135,16 @@ export const UserManagementPanel: React.FC = () => {
               </button>
             </div>
           </form>
-        </div>
+        </div> */}
         
         {/* Users List */}
         <ul className="divide-y divide-gray-200">
-          {users.length === 0 ? (
+          {users && users.length === 0 ? (
             <li className="px-6 py-12 text-center">
               <div className="text-gray-500">No users found</div>
             </li>
           ) : (
-            users.map((user) => (
+            users && users.map((user) => (
               <li key={user.id} className="px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -129,7 +156,7 @@ export const UserManagementPanel: React.FC = () => {
                     <div className="ml-4">
                       <div className="text-sm font-medium text-gray-900">{user.email}</div>
                       <div className="text-sm text-gray-500">
-                        Created: {user.created_at}
+                        Created: {new Date(user.created_at).toLocaleDateString()}
                       </div>
                     </div>
                   </div>

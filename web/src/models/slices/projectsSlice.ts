@@ -226,7 +226,7 @@ const projectsSlice = createSlice({
         state.isLoading = false;
         // Store members by project ID
         const projectId = (action.meta.arg as any).projectId;
-        const newMembers = action.payload.items || [];
+        const newMembers = action.payload.items || action.payload || [];
         
         // Append new members to existing members for this project
         if (state.membersByProject[projectId]) {
@@ -237,7 +237,6 @@ const projectsSlice = createSlice({
         } else {
           state.membersByProject[projectId] = newMembers;
         }
-        
         // Aggregate all members from all projects
         state.members = Object.values(state.membersByProject).flat();
       })
