@@ -16,8 +16,7 @@ export const AdminDashboardPage: React.FC = () => {
     loadProjects({ skip: 0, limit: 100 }); // Load first 100 projects
   }, [loadTasks, loadProjects]);
 
-  // Filter tasks to show only those with project assignments
-  const projectTasks = tasks.filter(task => task.project_id);
+  const projectTasks = tasks
 
   return (
     <div className="space-y-6">

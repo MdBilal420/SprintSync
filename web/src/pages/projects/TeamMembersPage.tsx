@@ -9,7 +9,6 @@ import { useProjectsController } from '../../controllers/projectsController';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import { getRelativeTime } from '../../utils/formatters';
-import type { ProjectMember } from '../../types';
 
 const TeamMembersPage: React.FC = () => {
   const {
@@ -19,6 +18,7 @@ const TeamMembersPage: React.FC = () => {
     error,
     loadProjects,
     loadProjectMembers,
+    getProjectName,
   } = useProjectsController();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,6 +48,8 @@ const TeamMembersPage: React.FC = () => {
     return member.user_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
            member.project_id?.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  console.log('Members:', members,projects);
 
   // Get role icon
   const getRoleIcon = (role: string) => {
@@ -146,15 +148,17 @@ const TeamMembersPage: React.FC = () => {
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <div className="rounded-full bg-gray-200 border-2 border-dashed rounded-xl w-12 h-12" />
+                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-gray-700 font-medium">
+                        {member.user.email.charAt(0).toUpperCase()}
+                      </span>
                     </div>
                     <div className="ml-3">
                       <h3 className="text-lg font-medium text-gray-900">
-                        User {member.user_id?.substring(0, 8) || 'Unknown'}
+                        {member.user.email?.split("@")[0] || 'Unknown'}
                       </h3>
                       <p className="text-sm text-gray-500">
-                        Project ID: {member.project_id?.substring(0, 8) || 'Unknown'}
+                        Project: {getProjectName(member.project_id) || 'N/A'}
                       </p>
                     </div>
                   </div>

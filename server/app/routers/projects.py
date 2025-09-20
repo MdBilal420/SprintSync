@@ -13,11 +13,12 @@ from ..database.connection import get_db
 from ..models.user import User
 from ..models.project import Project
 from ..schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse, ProjectWithMembers
-from ..schemas.project_member import ProjectMemberResponse
+from ..schemas.project_member import ProjectMemberResponse, ProjectMemberWithUser
 from ..auth import get_current_active_user, get_current_admin_user
 from ..crud import (
     create_project, get_project, get_user_projects, update_project, delete_project,
-    get_project_members, is_project_owner, is_project_admin, is_project_member
+    get_project_members, is_project_owner, is_project_admin, is_project_member,
+    get_project_members_with_users
 )
 
 router = APIRouter(prefix="/projects", tags=["Project Management"])
@@ -206,7 +207,7 @@ async def delete_project_endpoint(
     delete_project(db, project_id)
 
 
-@router.get("/{project_id}/members", response_model=List[ProjectMemberResponse])
+@router.get("/{project_id}/members", response_model=List[ProjectMemberWithUser])
 async def list_project_members(
     project_id: UUID,
     skip: int = 0,
@@ -225,7 +226,7 @@ async def list_project_members(
         db: Database session
         
     Returns:
-        List of project members
+        List of project members with user information
         
     Raises:
         HTTPException: If project not found or user doesn't have access
@@ -244,5 +245,5 @@ async def list_project_members(
             detail="Access denied to this project"
         )
     
-    members = get_project_members(db, project_id, skip, limit)
+    members = get_project_members_with_users(db, project_id, skip, limit)
     return members
