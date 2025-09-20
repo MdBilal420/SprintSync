@@ -33,6 +33,15 @@ IMAGE_NAME="sprintsync-backend"
 REGION="us-central1"
 SERVICE_NAME="sprintsync-backend"
 
+# Check if we're using service account key authentication
+if gcloud auth list --format="value(type)" | grep -q "service_account"; then
+    echo "🔑 Using service account authentication"
+    # For service account authentication, we might need to handle secrets differently
+    # Check if secrets exist, if not, we'll need to create them
+else
+    echo "👤 Using user account authentication"
+fi
+
 # Build the Docker image for amd64/linux platform (required by Cloud Run)
 echo "🔧 Building Docker image for amd64/linux platform..."
 cd $(dirname "$0")/..

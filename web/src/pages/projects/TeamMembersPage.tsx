@@ -49,8 +49,6 @@ const TeamMembersPage: React.FC = () => {
            member.project_id?.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
-  console.log('Members:', members,projects);
-
   // Get role icon
   const getRoleIcon = (role: string) => {
     switch (role) {

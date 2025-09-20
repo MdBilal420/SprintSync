@@ -15,9 +15,26 @@ if ! command -v gcloud &> /dev/null; then
     exit 1
 fi
 
-# Authenticate with Google Cloud
-echo "🔐 Authenticating with Google Cloud..."
-gcloud auth login
+# Authentication options
+echo "Choose authentication method:"
+echo "1. Interactive login (default)"
+echo "2. Service Account Key (less secure but simpler for CI/CD)"
+read -p "Enter choice (1 or 2): " AUTH_CHOICE
+
+if [ "$AUTH_CHOICE" = "2" ]; then
+    echo "🔐 Service Account Key Authentication"
+    read -p "Enter path to service account key file: " KEY_FILE
+    if [ ! -f "$KEY_FILE" ]; then
+        echo "❌ Key file not found: $KEY_FILE"
+        exit 1
+    fi
+    gcloud auth activate-service-account --key-file="$KEY_FILE"
+    echo "✅ Authenticated with service account key"
+else
+    # Default to interactive login
+    echo "🔐 Interactive Authentication"
+    gcloud auth login
+fi
 
 # Get project ID from user
 read -p "Enter your Google Cloud Project ID: " PROJECT_ID
@@ -30,7 +47,8 @@ gcloud config set project $PROJECT_ID
 echo "⚙️  Enabling required services..."
 gcloud services enable \
     cloudbuild.googleapis.com \
-    run.googleapis.com
+    run.googleapis.com \
+    secretmanager.googleapis.com
 
 echo "✅ GCP setup completed successfully!"
 echo "Next steps:"
