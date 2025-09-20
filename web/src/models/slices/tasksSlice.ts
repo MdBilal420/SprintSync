@@ -16,6 +16,8 @@ interface TasksState {
   isLoading: boolean;
   error: string | null;
   filters: {
+    project_id?: string;
+    assigned_to_id?: string;
     status?: string;
     sortBy: string;
     sortOrder: 'asc' | 'desc';
@@ -40,6 +42,8 @@ const initialState: TasksState = {
 export const fetchTasks = createAsyncThunk(
   'tasks/fetchTasks',
   async (params: {
+    project_id?: string;
+    assigned_to_id?: string;
     skip?: number;
     limit?: number;
     status?: string;

@@ -16,15 +16,19 @@ import {
   MoreVertical,
   Edit3,
   Trash2,
-  Timer
+  Timer,
+  Users,
+  Folder
 } from 'lucide-react';
 import { useTasksController } from '../../controllers/tasksController';
+import { useProjectsController } from '../../controllers/projectsController';
 import { useUIController } from '../../controllers/uiController';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import CreateTaskModal from '../../components/tasks/CreateTaskModal';
 import EditTaskModal from '../../components/tasks/EditTaskModal';
 import DeleteTaskModal from '../../components/tasks/DeleteTaskModal';
+import { TaskAssignmentModal } from '../../components/tasks/TaskAssignmentModal';
 import { getStatusColor, formatMinutes, formatStatus, getRelativeTime } from '../../utils/formatters';
 import type { TaskStatus } from '../../types';
 
@@ -46,7 +50,19 @@ const TasksPage: React.FC = () => {
     closeTaskModal,
   } = useTasksController();
 
+  const {
+    projects,
+    loadProjects,
+  } = useProjectsController();
+
   const { showNotification, modal } = useUIController();
+  const [assignTask, setAssignTask] = useState<{taskId: string, projectId: string} | null>(null);
+
+  // Load tasks and projects on component mount
+  useEffect(() => {
+    loadTasks();
+    loadProjects();
+  }, [loadTasks, loadProjects]);
 
   // Local UI state
   const [searchTerm, setSearchTerm] = useState('');
@@ -63,7 +79,8 @@ const TasksPage: React.FC = () => {
     const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          task.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !filters.status || task.status === filters.status;
-    return matchesSearch && matchesStatus;
+    const matchesProject = !filters.project_id || task.project_id === filters.project_id;
+    return matchesSearch && matchesStatus && matchesProject;
   });
 
   // Handle status change
@@ -214,6 +231,24 @@ const TasksPage: React.FC = () => {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Project
+              </label>
+              <select
+                className="input-field w-full"
+                value={filters.project_id || ''}
+                onChange={(e) => updateFilters({ project_id: e.target.value || undefined })}
+              >
+                <option value="">All Projects</option>
+                {projects.map(project => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Sort By
               </label>
               <select
@@ -230,7 +265,7 @@ const TasksPage: React.FC = () => {
 
             <div className="flex items-end">
               <button
-                onClick={() => updateFilters({ status: undefined })}
+                onClick={() => updateFilters({ status: undefined, project_id: undefined })}
                 className="btn-secondary w-full"
               >
                 Clear Filters
@@ -328,6 +363,18 @@ const TasksPage: React.FC = () => {
                           <Trash2 className="h-4 w-4 mr-2" />
                           Delete Task
                         </button>
+                        {task.project_id && (
+                          <button
+                            onClick={() => {
+                              setAssignTask({ taskId: task.id, projectId: task.project_id || '' });
+                              setSelectedTask(null);
+                            }}
+                            className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                          >
+                            <Users className="h-4 w-4 mr-2" />
+                            Assign Task
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
@@ -348,6 +395,23 @@ const TasksPage: React.FC = () => {
                     <span className="text-xs text-gray-500 flex items-center">
                       <Timer className="h-3 w-3 mr-1" />
                       {formatMinutes(task.total_minutes)}
+                    </span>
+                  )}
+                  
+                  {/* Project */}
+                  {task.project_id && (
+                    <span className="text-xs text-gray-500 flex items-center bg-gray-100 px-2 py-1 rounded">
+                      <Folder className="h-3 w-3 mr-1" />
+                      {/* Project name would need to be looked up from projects array */}
+                      Project
+                    </span>
+                  )}
+                  
+                  {/* Assigned To */}
+                  {task.assigned_to_id && task.assigned_to_id !== task.user_id && (
+                    <span className="text-xs text-gray-500 flex items-center bg-blue-100 px-2 py-1 rounded">
+                      <Users className="h-3 w-3 mr-1" />
+                      Assigned
                     </span>
                   )}
                 </div>
@@ -427,6 +491,18 @@ const TasksPage: React.FC = () => {
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete Task
                           </button>
+                          {task.project_id && (
+                            <button
+                              onClick={() => {
+                                setAssignTask({ taskId: task.id, projectId: task.project_id || '' });
+                                setSelectedTask(null);
+                              }}
+                              className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                            >
+                              <Users className="h-4 w-4 mr-2" />
+                              Assign Task
+                            </button>
+                          )}
                         </div>
                       </div>
                     )}
@@ -532,6 +608,15 @@ const TasksPage: React.FC = () => {
         taskTitle={modal.data?.taskTitle}
         onClose={closeTaskModal}
       />
+      
+      {assignTask && (
+        <TaskAssignmentModal
+          isOpen={true}
+          onClose={() => setAssignTask(null)}
+          task={tasks.find(t => t.id === assignTask.taskId) || tasks[0]}
+          projectId={assignTask.projectId}
+        />
+      )}
     </div>
   );
 };
