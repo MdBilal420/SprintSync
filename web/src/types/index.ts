@@ -76,7 +76,7 @@ export interface Task {
   total_minutes: number;
   user_id: string;
   project_id?: string;
-  assigned_to_id?: string;
+  owner_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -85,7 +85,7 @@ export interface TaskCreate {
   title: string;
   description?: string;
   project_id?: string;
-  assigned_to_id?: string;
+  owner_id?: string;
 }
 
 export interface TaskUpdate {
@@ -94,7 +94,7 @@ export interface TaskUpdate {
   status?: TaskStatus;
   total_minutes?: number;
   project_id?: string;
-  assigned_to_id?: string;
+  owner_id?: string;
 }
 
 // Authentication types

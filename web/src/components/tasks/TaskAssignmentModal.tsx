@@ -21,7 +21,7 @@ export const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { members, isLoading: isMembersLoading } = useSelector((state: RootState) => state.projects);
-  const [selectedUserId, setSelectedUserId] = useState<string>(task.assigned_to_id || '');
+  const [selectedUserId, setSelectedUserId] = useState<string>(task.owner_id || '');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,7 +41,7 @@ export const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
       await dispatch(updateTask({
         taskId: task.id,
         taskData: {
-          assigned_to_id: selectedUserId || undefined,
+          owner_id: selectedUserId || undefined,
         }
       })).unwrap();
       
@@ -69,7 +69,7 @@ export const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
 
             <div>
               <label htmlFor="assignee" className="block text-sm font-medium text-gray-700 mb-1">
-                Assign to
+                Assigned to
               </label>
               {isMembersLoading ? (
                 <div className="text-gray-500">Loading team members...</div>

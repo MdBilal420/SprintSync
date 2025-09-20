@@ -18,7 +18,8 @@ import {
   Trash2,
   Timer,
   Users,
-  Folder
+  Folder,
+  User
 } from 'lucide-react';
 import { useTasksController } from '../../controllers/tasksController';
 import { useProjectsController } from '../../controllers/projectsController';
@@ -29,6 +30,8 @@ import CreateTaskModal from '../../components/tasks/CreateTaskModal';
 import EditTaskModal from '../../components/tasks/EditTaskModal';
 import DeleteTaskModal from '../../components/tasks/DeleteTaskModal';
 import { TaskAssignmentModal } from '../../components/tasks/TaskAssignmentModal';
+import TaskDetailsModal from '../../components/tasks/TaskDetailsModal';
+import TaskAssigneeModal from '../../components/tasks/TaskAssigneeModal';
 import { getStatusColor, formatMinutes, formatStatus, getRelativeTime } from '../../utils/formatters';
 import type { TaskStatus } from '../../types';
 
@@ -57,6 +60,26 @@ const TasksPage: React.FC = () => {
 
   const { showNotification, modal } = useUIController();
   const [assignTask, setAssignTask] = useState<{taskId: string, projectId: string} | null>(null);
+  const [viewTaskDetails, setViewTaskDetails] = useState<Task | null>(null);
+  const [assigneeTask, setAssigneeTask] = useState<Task | null>(null);
+
+  // Helper functions to get names
+  const getProjectName = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    return project ? project.name : 'Unknown Project';
+  };
+
+  const getAssigneeName = (ownerId: string) => {
+    // For now, we'll show a shortened user ID. In a real app, you'd fetch user details
+    // or include them in the task data
+    return `User ${ownerId.slice(0, 8)}...`;
+  };
+
+  const getCreatorName = (userId: string) => {
+    // For now, we'll show a shortened user ID. In a real app, you'd fetch user details
+    // or include them in the task data
+    return `User ${userId.slice(0, 8)}...`;
+  };
 
   // Load tasks and projects on component mount
   useEffect(() => {
@@ -329,6 +352,31 @@ const TasksPage: React.FC = () => {
                       {formatMinutes(task.total_minutes)}
                     </span>
                   )}
+                  
+                  {/* Project */}
+                  {task.project_id && (
+                    <span className="text-xs text-gray-500 flex items-center bg-gray-100 px-2 py-1 rounded">
+                      <Folder className="h-3 w-3 mr-1" />
+                      {getProjectName(task.project_id)}
+                    </span>
+                  )}
+                  
+                  {/* Assigned To */}
+                  {task.owner_id && task.owner_id !== task.user_id && (
+                    <div className="flex items-center">
+                      <span className="text-xs text-gray-500 flex items-center bg-blue-100 px-2 py-1 rounded">
+                        <Users className="h-3 w-3 mr-1" />
+                        {getAssigneeName(task.owner_id)}
+                      </span>
+                      <button
+                        onClick={() => setAssigneeTask(task)}
+                        className="ml-1 text-blue-600 hover:text-blue-800 text-xs"
+                        title="Change assignee"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Mobile Actions Menu */}
@@ -343,6 +391,16 @@ const TasksPage: React.FC = () => {
                   {selectedTask === task.id && (
                     <div className="absolute right-0 top-6 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
                       <div className="py-1">
+                        <button
+                          onClick={() => {
+                            setViewTaskDetails(task);
+                            setSelectedTask(null);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          View Details
+                        </button>
                         <button
                           onClick={() => {
                             openEditTaskModal(task);
@@ -363,16 +421,26 @@ const TasksPage: React.FC = () => {
                           <Trash2 className="h-4 w-4 mr-2" />
                           Delete Task
                         </button>
+                        <button
+                          onClick={() => {
+                            setAssigneeTask(task);
+                            setSelectedTask(null);
+                          }}
+                          className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                        >
+                          <Users className="h-4 w-4 mr-2" />
+                          Change Assignee
+                        </button>
                         {task.project_id && (
                           <button
                             onClick={() => {
                               setAssignTask({ taskId: task.id, projectId: task.project_id || '' });
                               setSelectedTask(null);
                             }}
-                            className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                            className="flex items-center w-full px-4 py-2 text-sm text-purple-600 hover:bg-purple-50"
                           >
                             <Users className="h-4 w-4 mr-2" />
-                            Assign Task
+                            Project Assignment
                           </button>
                         )}
                       </div>
@@ -402,17 +470,25 @@ const TasksPage: React.FC = () => {
                   {task.project_id && (
                     <span className="text-xs text-gray-500 flex items-center bg-gray-100 px-2 py-1 rounded">
                       <Folder className="h-3 w-3 mr-1" />
-                      {/* Project name would need to be looked up from projects array */}
-                      Project
+                      {getProjectName(task.project_id)}
                     </span>
                   )}
                   
                   {/* Assigned To */}
-                  {task.assigned_to_id && task.assigned_to_id !== task.user_id && (
-                    <span className="text-xs text-gray-500 flex items-center bg-blue-100 px-2 py-1 rounded">
-                      <Users className="h-3 w-3 mr-1" />
-                      Assigned
-                    </span>
+                  {task.owner_id && task.owner_id !== task.user_id && (
+                    <div className="flex items-center">
+                      <span className="text-xs text-gray-500 flex items-center bg-blue-100 px-2 py-1 rounded">
+                        <Users className="h-3 w-3 mr-1" />
+                        {getAssigneeName(task.owner_id)}
+                      </span>
+                      <button
+                        onClick={() => setAssigneeTask(task)}
+                        className="ml-1 text-blue-600 hover:text-blue-800 text-xs"
+                        title="Change assignee"
+                      >
+                        ✏️
+                      </button>
+                    </div>
                   )}
                 </div>
                 
@@ -473,6 +549,16 @@ const TasksPage: React.FC = () => {
                         <div className="py-1">
                           <button
                             onClick={() => {
+                              setViewTaskDetails(task);
+                              setSelectedTask(null);
+                            }}
+                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            View Details
+                          </button>
+                          <button
+                            onClick={() => {
                               openEditTaskModal(task);
                               setSelectedTask(null);
                             }}
@@ -491,16 +577,26 @@ const TasksPage: React.FC = () => {
                             <Trash2 className="h-4 w-4 mr-2" />
                             Delete Task
                           </button>
+                          <button
+                            onClick={() => {
+                              setAssigneeTask(task);
+                              setSelectedTask(null);
+                            }}
+                            className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                          >
+                            <Users className="h-4 w-4 mr-2" />
+                            Change Assignee
+                          </button>
                           {task.project_id && (
                             <button
                               onClick={() => {
                                 setAssignTask({ taskId: task.id, projectId: task.project_id || '' });
                                 setSelectedTask(null);
                               }}
-                              className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                              className="flex items-center w-full px-4 py-2 text-sm text-purple-600 hover:bg-purple-50"
                             >
                               <Users className="h-4 w-4 mr-2" />
-                              Assign Task
+                              Project Assignment
                             </button>
                           )}
                         </div>
@@ -523,7 +619,7 @@ const TasksPage: React.FC = () => {
                 )}
 
                 <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                  <span>Created {getRelativeTime(task.created_at)}</span>
+                  <span>Created {getRelativeTime(task.created_at)} by {getCreatorName(task.user_id)}</span>
                   {task.updated_at !== task.created_at && (
                     <span>• Updated {getRelativeTime(task.updated_at)}</span>
                   )}
@@ -615,6 +711,25 @@ const TasksPage: React.FC = () => {
           onClose={() => setAssignTask(null)}
           task={tasks.find(t => t.id === assignTask.taskId) || tasks[0]}
           projectId={assignTask.projectId}
+        />
+      )}
+      
+      {viewTaskDetails && (
+        <TaskDetailsModal
+          isOpen={true}
+          onClose={() => setViewTaskDetails(null)}
+          task={viewTaskDetails}
+          // TODO: Load creator and owner user details
+          creator={undefined}
+          owner={undefined}
+        />
+      )}
+      
+      {assigneeTask && (
+        <TaskAssigneeModal
+          isOpen={true}
+          onClose={() => setAssigneeTask(null)}
+          task={assigneeTask}
         />
       )}
     </div>

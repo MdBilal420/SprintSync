@@ -39,7 +39,7 @@ class Task(Base):
     # Foreign keys
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=True)
-    assigned_to_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -48,7 +48,7 @@ class Task(Base):
     # Relationships
     user = relationship("User", back_populates="tasks", foreign_keys=[user_id])
     project = relationship("Project", back_populates="tasks")
-    assigned_to = relationship("User", back_populates="assigned_tasks", foreign_keys=[assigned_to_id])
+    owner = relationship("User", back_populates="owned_tasks", foreign_keys=[owner_id])
     
     def __repr__(self):
         return f"<Task(id={self.id}, title={self.title}, status={self.status}, user_id={self.user_id})>"

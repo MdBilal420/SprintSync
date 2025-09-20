@@ -26,6 +26,7 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[TaskStatus] = None
     total_minutes: Optional[int] = Field(None, ge=0, description="Total minutes spent on task")
+    owner_id: Optional[UUID] = Field(None, description="User ID to assign task to")
 
 
 class TaskInDB(TaskBase):
@@ -34,6 +35,8 @@ class TaskInDB(TaskBase):
     status: TaskStatus
     total_minutes: int
     user_id: UUID
+    project_id: Optional[UUID]
+    owner_id: Optional[UUID]
     created_at: datetime
     updated_at: datetime
     
@@ -47,6 +50,8 @@ class TaskResponse(TaskBase):
     status: TaskStatus
     total_minutes: int
     user_id: UUID
+    project_id: Optional[UUID]
+    owner_id: Optional[UUID]
     created_at: datetime
     updated_at: datetime
     
@@ -62,6 +67,16 @@ class TaskWithUser(TaskResponse):
         from_attributes = True
 
 
+class TaskWithDetails(TaskResponse):
+    """Schema for task with creator and owner information."""
+    created_by: "UserResponse"
+    owner: Optional["UserResponse"] = None
+    
+    class Config:
+        from_attributes = True
+
+
 # Import here to avoid circular imports
 from .user import UserResponse
 TaskWithUser.model_rebuild()
+TaskWithDetails.model_rebuild()
