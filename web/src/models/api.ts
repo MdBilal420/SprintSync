@@ -195,6 +195,12 @@ export const deleteUser = async (userId: string): Promise<void> => {
   await api.delete(`/users/${userId}`);
 };
 
+// User profile (current user)
+export const updateUserProfile = async (userData: Partial<User>): Promise<User> => {
+  const response: AxiosResponse<User> = await api.patch('/users/profile', userData);
+  return response.data;
+};
+
 // Health check
 export const healthCheck = async (): Promise<{ status: string; database: string; ai_service: string }> => {
   const response = await api.get('/health');

@@ -23,12 +23,14 @@ class UserUpdate(BaseModel):
     """Schema for updating user information."""
     email: Optional[EmailStr] = None
     is_admin: Optional[bool] = None
+    description: Optional[str] = None  # New description field
 
 
 class UserInDB(UserBase):
     """Schema for user stored in database."""
     id: UUID
     is_admin: bool
+    description: Optional[str] = None  # New description field
     created_at: datetime
     updated_at: datetime
     
@@ -40,6 +42,7 @@ class UserResponse(UserBase):
     """Schema for user API responses."""
     id: UUID
     is_admin: bool
+    description: Optional[str] = None  # New description field
     created_at: datetime
     
     class Config:

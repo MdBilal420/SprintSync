@@ -162,6 +162,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <CheckSquare className="h-4 w-4 mr-2 inline" />
                   Tasks
                 </Link>
+                
+                <Link
+                  to="/profile"
+                  className={`nav-link block px-3 py-2 rounded-md text-base font-medium ${
+                    isActive('/profile') ? 'nav-link-active bg-blue-50' : 'text-gray-700'
+                  }`}
+                  onClick={closeMobileMenu}
+                >
+                  <User className="h-4 w-4 mr-2 inline" />
+                  Profile
+                </Link>
               </div>
               
               <div className="mt-6 pt-6 border-t border-gray-200">
