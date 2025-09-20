@@ -75,7 +75,7 @@ export interface Task {
   status: TaskStatus;
   total_minutes: number;
   user_id: string;
-  project_id?: string;
+  project_id: string;
   owner_id?: string;
   created_at: string;
   updated_at: string;
@@ -84,7 +84,7 @@ export interface Task {
 export interface TaskCreate {
   title: string;
   description?: string;
-  project_id?: string;
+  project_id?: string;  // Made optional since it's sent as a query parameter
   owner_id?: string;
 }
 
@@ -93,7 +93,8 @@ export interface TaskUpdate {
   description?: string;
   status?: TaskStatus;
   total_minutes?: number;
-  project_id?: string;
+  project_id?: string;  // Made optional again
+  user_id?: string;  // Add user_id for assignee
   owner_id?: string;
 }
 

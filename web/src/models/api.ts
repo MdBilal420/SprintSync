@@ -139,8 +139,9 @@ export const getTask = async (taskId: string): Promise<Task> => {
   return response.data;
 };
 
-export const createTask = async (taskData: TaskCreate): Promise<Task> => {
-  const response: AxiosResponse<Task> = await api.post('/tasks/', taskData);
+export const createTask = async (taskData: TaskCreate, projectId?: string): Promise<Task> => {
+  const params = projectId ? { project_id: projectId } : undefined;
+  const response: AxiosResponse<Task> = await api.post('/tasks/', taskData, { params });
   return response.data;
 };
 
@@ -151,13 +152,6 @@ export const updateTask = async (taskId: string, taskData: TaskUpdate): Promise<
 
 export const deleteTask = async (taskId: string): Promise<void> => {
   await api.delete(`/tasks/${taskId}`);
-};
-
-export const updateTaskTime = async (taskId: string, additionalMinutes: number): Promise<Task> => {
-  const response: AxiosResponse<Task> = await api.patch(
-    `/tasks/${taskId}/time?minutes=${additionalMinutes}`
-  );
-  return response.data;
 };
 
 // AI endpoints

@@ -12,7 +12,6 @@ import {
   createTask,
   updateTask,
   deleteTask,
-  updateTaskTime,
   clearError,
   setFilters,
 } from '../models/slices/tasksSlice.ts';
@@ -61,6 +60,11 @@ export const useTasksController = () => {
   const handleCreateTask = useCallback(
     async (taskData: TaskCreate) => {
       try {
+        // Validate that project_id is provided
+        if (!taskData.project_id) {
+          throw new Error('Project ID is required to create a task');
+        }
+        
         const result = await dispatch(createTask(taskData)).unwrap();
         dispatch(closeModal());
         return result;
@@ -75,27 +79,53 @@ export const useTasksController = () => {
   const handleUpdateTask = useCallback(
     async (taskId: string, taskData: TaskUpdate) => {
       try {
-        const result = await dispatch(updateTask({ taskId, taskData })).unwrap();
+        // If project_id is not provided in the update data, get it from the current task
+        let updateData = taskData;
+        if (!taskData.project_id) {
+          const currentTask = tasks.find(task => task.id === taskId);
+          if (currentTask) {
+            updateData = {
+              ...taskData,
+              project_id: currentTask.project_id
+            };
+          } else {
+            throw new Error('Task not found');
+          }
+        }
+        
+        const result = await dispatch(updateTask({ taskId, taskData: updateData })).unwrap();
         dispatch(closeModal());
         return result;
       } catch (error) {
         throw error;
       }
     },
-    [dispatch]
+    [dispatch, tasks]
   );
 
   // Update task status
   const handleUpdateTaskStatus = useCallback(
     async (taskId: string, newStatus: TaskStatus) => {
       try {
-        const result = await dispatch(updateTask({ taskId, taskData: { status: newStatus } })).unwrap();
+        // Get the current task to get its project_id
+        const currentTask = tasks.find(task => task.id === taskId);
+        if (!currentTask) {
+          throw new Error('Task not found');
+        }
+        
+        const result = await dispatch(updateTask({ 
+          taskId, 
+          taskData: { 
+            status: newStatus,
+            project_id: currentTask.project_id
+          } 
+        })).unwrap();
         return result;
       } catch (error) {
         throw error;
       }
     },
-    [dispatch]
+    [dispatch, tasks]
   );
 
   // Delete a task
@@ -115,13 +145,29 @@ export const useTasksController = () => {
   const handleLogTime = useCallback(
     async (taskId: string, additionalMinutes: number) => {
       try {
-        const result = await dispatch(updateTaskTime({ taskId, additionalMinutes })).unwrap();
+        // Get the current task to get its project_id
+        const currentTask = tasks.find(task => task.id === taskId);
+        if (!currentTask) {
+          throw new Error('Task not found');
+        }
+        
+        // Use the general updateTask function instead of updateTaskTime
+        // to ensure project_id is included
+        const newTotalMinutes = (currentTask.total_minutes || 0) + additionalMinutes;
+        const result = await dispatch(updateTask({
+          taskId,
+          taskData: {
+            total_minutes: newTotalMinutes,
+            project_id: currentTask.project_id
+          }
+        })).unwrap();
+        
         return result;
       } catch (error) {
         throw error;
       }
     },
-    [dispatch]
+    [dispatch, tasks]
   );
 
   // Update filters
@@ -138,8 +184,8 @@ export const useTasksController = () => {
   }, [dispatch]);
 
   // Modal actions
-  const openCreateTaskModal = useCallback(() => {
-    dispatch(openModal({ type: 'createTask' }));
+  const openCreateTaskModal = useCallback((projectId?: string) => {
+    dispatch(openModal({ type: 'createTask', data: { projectId } }));
   }, [dispatch]);
 
   const openEditTaskModal = useCallback((task: any) => {

@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, Search, Users, Calendar, Filter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useProjectsController } from '../../controllers/projectsController';
 import { useUIController } from '../../controllers/uiController';
 import { ProjectCreationModal } from '../../components/projects/ProjectCreationModal';
@@ -13,6 +14,7 @@ import ErrorMessage from '../../components/common/ErrorMessage';
 import type { Project } from '../../types';
 
 const ProjectsPage: React.FC = () => {
+  const navigate = useNavigate();
   const {
     projects,
     isLoading,
@@ -42,6 +44,11 @@ const ProjectsPage: React.FC = () => {
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  // Navigate to project details page
+  const handleProjectClick = (projectId: string) => {
+    navigate(`/projects/${projectId}`);
+  };
 
   if (isLoading && (!projects || projects.length === 0)) {
     return (
@@ -134,6 +141,7 @@ const ProjectsPage: React.FC = () => {
             <div
               key={project.id}
               className="card hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+              onClick={() => handleProjectClick(project.id)}
             >
               <div className="flex items-start justify-between mb-3">
                 <h3 className="text-lg font-medium text-gray-900 truncate">

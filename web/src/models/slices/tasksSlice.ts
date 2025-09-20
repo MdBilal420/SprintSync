@@ -75,7 +75,12 @@ export const createTask = createAsyncThunk(
   'tasks/createTask',
   async (taskData: TaskCreate, { rejectWithValue }) => {
     try {
-      const task = await apiService.createTask(taskData);
+      // Extract project_id from taskData if it exists
+      const projectId = taskData.project_id;
+      // Remove project_id from taskData since it should be sent as a query parameter
+      const { project_id, ...taskCreateData } = taskData;
+      
+      const task = await apiService.createTask(taskCreateData, projectId);
       return task;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.detail || 'Failed to create task');
@@ -103,18 +108,6 @@ export const deleteTask = createAsyncThunk(
       return taskId;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.detail || 'Failed to delete task');
-    }
-  }
-);
-
-export const updateTaskTime = createAsyncThunk(
-  'tasks/updateTaskTime',
-  async ({ taskId, additionalMinutes }: { taskId: string; additionalMinutes: number }, { rejectWithValue }) => {
-    try {
-      const task = await apiService.updateTaskTime(taskId, additionalMinutes);
-      return task;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to update task time');
     }
   }
 );
@@ -216,20 +209,6 @@ const tasksSlice = createSlice({
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.error = action.payload as string;
-      })
-      // Update task time
-      .addCase(updateTaskTime.fulfilled, (state, action) => {
-        // Ensure tasks is always an array
-        if (!state.tasks) {
-          state.tasks = [];
-        }
-        const index = state.tasks.findIndex(task => task.id === action.payload.id);
-        if (index !== -1) {
-          state.tasks[index] = action.payload;
-        }
-        if (state.currentTask?.id === action.payload.id) {
-          state.currentTask = action.payload;
-        }
       });
   },
 });

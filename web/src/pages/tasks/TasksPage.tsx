@@ -33,7 +33,7 @@ import { TaskAssignmentModal } from '../../components/tasks/TaskAssignmentModal'
 import TaskDetailsModal from '../../components/tasks/TaskDetailsModal';
 import TaskAssigneeModal from '../../components/tasks/TaskAssigneeModal';
 import { getStatusColor, formatMinutes, formatStatus, getRelativeTime } from '../../utils/formatters';
-import type { TaskStatus } from '../../types';
+import type { Task, TaskStatus } from '../../types';
 
 const TasksPage: React.FC = () => {
   const {
@@ -185,7 +185,7 @@ const TasksPage: React.FC = () => {
         </div>
         
         <button
-          onClick={openCreateTaskModal}
+          onClick={() => openCreateTaskModal(filters.project_id)}
           className="btn-primary inline-flex items-center w-full sm:w-auto justify-center"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -321,7 +321,7 @@ const TasksPage: React.FC = () => {
           </p>
           {!searchTerm && !filters.status && (
             <button
-              onClick={openCreateTaskModal}
+              onClick={() => openCreateTaskModal(filters.project_id)}
               className="btn-primary inline-flex items-center"
             >
               <Plus className="h-4 w-4 mr-2" />
