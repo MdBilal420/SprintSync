@@ -12,6 +12,7 @@ import TasksPage from './pages/tasks/TasksPage';
 import ProjectsPage from './pages/projects/ProjectsPage';
 import ProjectDetailsPage from './pages/projects/ProjectDetailsPage';
 import TeamMembersPage from './pages/projects/TeamMembersPage';
+import UserProfilePage from './pages/profile/UserProfilePage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import NotificationProvider from './components/common/NotificationProvider';
 import { useAuthController } from './controllers/authController';
@@ -151,6 +152,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminDashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <UserProfilePage />
                   </ProtectedRoute>
                 }
               />
