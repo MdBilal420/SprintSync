@@ -22,6 +22,13 @@ from .schemas import (
     UserLogin,
     UserRegister
 )
+from .project_permissions import (
+    get_current_project,
+    validate_project_membership,
+    validate_project_admin,
+    validate_project_owner,
+    get_user_project_role
+)
 
 __all__ = [
     "create_access_token",
@@ -34,5 +41,10 @@ __all__ = [
     "Token",
     "TokenData",
     "UserLogin",
-    "UserRegister"
+    "UserRegister",
+    "get_current_project",
+    "validate_project_membership",
+    "validate_project_admin",
+    "validate_project_owner",
+    "get_user_project_role"
 ]

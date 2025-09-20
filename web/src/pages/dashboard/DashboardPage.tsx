@@ -5,7 +5,7 @@
 
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, CheckSquare, Clock, Target, TrendingUp } from 'lucide-react';
+import { Plus, CheckSquare, Clock, Target, TrendingUp, FolderOpen, Users } from 'lucide-react';
 import { useAuthController } from '../../controllers/authController.ts';
 import { useTasksController } from '../../controllers/tasksController.ts';
 import LoadingSpinner from '../../components/common/LoadingSpinner.tsx';
@@ -20,19 +20,27 @@ const DashboardPage: React.FC = () => {
     tasks, 
     isLoading, 
     error, 
-    loadTasks, 
+    loadTasks,
+    updateFilters,
     getTaskStats 
   } = useTasksController();
 
   useEffect(() => {
-    loadTasks({ limit: 5, sort_by: 'updated_at', sort_order: 'desc' });
-  }, [loadTasks]);
+    // Set filters for recent tasks and load them in a single effect
+    updateFilters({ 
+      sortBy: 'updated_at', 
+      sortOrder: 'desc' 
+    });
+    
+    // Load tasks with limit
+    loadTasks({ limit: 5 });
+  }, []); // Empty dependency array to run only once
 
   const stats = getTaskStats();
 
   // Pure UI functions are imported from view utilities
 
-  if (isLoading) {
+  if (isLoading && (!tasks || tasks.length === 0)) {
     return (
       <div className="flex justify-center items-center h-64">
         <LoadingSpinner size="lg" />
@@ -110,6 +118,53 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Project Management Quick Links */}
+      <div className="card">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">Project Management</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Link
+            to="/projects"
+            className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
+          >
+            <div className="flex-shrink-0 p-2 bg-blue-100 rounded-lg">
+              <FolderOpen className="h-5 w-5 text-blue-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="font-medium text-gray-900">Projects</h3>
+              <p className="text-sm text-gray-500 mt-1">View and manage your projects</p>
+            </div>
+          </Link>
+          
+          <Link
+            to="/team-members"
+            className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
+          >
+            <div className="flex-shrink-0 p-2 bg-purple-100 rounded-lg">
+              <Users className="h-5 w-5 text-purple-600" />
+            </div>
+            <div className="ml-4">
+              <h3 className="font-medium text-gray-900">Team Members</h3>
+              <p className="text-sm text-gray-500 mt-1">View all team members</p>
+            </div>
+          </Link>
+          
+          {user?.is_admin && (
+            <Link
+              to="/admin"
+              className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
+            >
+              <div className="flex-shrink-0 p-2 bg-red-100 rounded-lg">
+                <Target className="h-5 w-5 text-red-600" />
+              </div>
+              <div className="ml-4">
+                <h3 className="font-medium text-gray-900">Admin Panel</h3>
+                <p className="text-sm text-gray-500 mt-1">System-wide management</p>
+              </div>
+            </Link>
+          )}
         </div>
       </div>
 

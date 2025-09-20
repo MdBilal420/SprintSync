@@ -22,6 +22,49 @@ export interface UserLogin {
   password: string;
 }
 
+// Project types
+export type ProjectRole = 'owner' | 'admin' | 'member';
+
+export interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  is_active: boolean;
+  owner_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectCreate {
+  name: string;
+  description?: string;
+}
+
+export interface ProjectUpdate {
+  name?: string;
+  description?: string;
+  is_active?: boolean;
+}
+
+export interface ProjectMember {
+  user: any;
+  id: string;
+  project_id: string;
+  user_id: string;
+  role: ProjectRole;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProjectMemberCreate {
+  user_id: string;
+  role: ProjectRole;
+}
+
+export interface ProjectMemberUpdate {
+  role: ProjectRole;
+}
+
 // Task types
 export type TaskStatus = 'todo' | 'in_progress' | 'done';
 
@@ -32,6 +75,8 @@ export interface Task {
   status: TaskStatus;
   total_minutes: number;
   user_id: string;
+  project_id?: string;
+  assigned_to_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -39,6 +84,8 @@ export interface Task {
 export interface TaskCreate {
   title: string;
   description?: string;
+  project_id?: string;
+  assigned_to_id?: string;
 }
 
 export interface TaskUpdate {
@@ -46,6 +93,8 @@ export interface TaskUpdate {
   description?: string;
   status?: TaskStatus;
   total_minutes?: number;
+  project_id?: string;
+  assigned_to_id?: string;
 }
 
 // Authentication types

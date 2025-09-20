@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
-from .routers import auth_router, users_router, tasks_router, ai_router
+from .routers import auth_router, users_router, tasks_router, ai_router, projects_router, project_members_router
 
 # Import logging middleware
 from .middleware.logging_middleware import LoggingMiddleware
@@ -34,6 +34,7 @@ app = FastAPI(
     * **Authentication**: JWT-based authentication with registration and login
     * **User Management**: Profile management and admin controls
     * **Task Management**: Full CRUD operations with status tracking and time logging
+    * **Project Management**: Team collaboration with projects and member management
     * **Statistics**: Completion metrics and time tracking analytics
     * **AI Integration**: Task description generation and planning assistance (coming soon)
     
@@ -77,6 +78,8 @@ app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(tasks_router)
 app.include_router(ai_router)
+app.include_router(projects_router)
+app.include_router(project_members_router)
 
 # Create tables on startup if they don't exist
 @app.on_event("startup")
@@ -138,13 +141,15 @@ async def health_check():
         "components": {
             "api": "operational",
             "database": db_status,
-            "models": "User, Task",
+            "models": "User, Task, Project, ProjectMember",
             "migrations": "ready",
             "authentication": "jwt-enabled",
             "endpoints": {
                 "auth": "/auth (register, login, me)",
                 "users": "/users (profile, management)",
                 "tasks": "/tasks (CRUD operations)",
+                "projects": "/projects (project management)",
+                "project_members": "/projects/{project_id}/members (member management)",
                 "ai": "/ai (task description generation)"
             },
             "ai": "task-description-generation"
