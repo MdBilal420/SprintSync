@@ -14,9 +14,10 @@ import type { TaskCreate, TaskDescriptionRequest } from '../../types';
 interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
+  projectId?: string;
 }
 
-const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) => {
+const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, projectId }) => {
   const { handleCreateTask, isLoading } = useTasksController();
   const { showNotification } = useUIController();
   const { 
@@ -27,18 +28,18 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
     clearSuggestion 
   } = useAIController();
   
-  const [formData, setFormData] = useState<TaskCreate>({
+  const [formData, setFormData] = useState<Omit<TaskCreate, 'project_id'>>({
     title: '',
     description: '',
   });
 
-  const [errors, setErrors] = useState<Partial<TaskCreate>>({});
+  const [errors, setErrors] = useState<Partial<Omit<TaskCreate, 'project_id'>>>({});
   const [showAISuggestion, setShowAISuggestion] = useState(false);
   const [aiContext, setAIContext] = useState('');
   const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<TaskCreate> = {};
+    const newErrors: Partial<Omit<TaskCreate, 'project_id'>> = {};
     
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
@@ -48,6 +49,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
 
     if (formData.description && formData.description.length > 1000) {
       newErrors.description = 'Description must be less than 1000 characters';
+    }
+
+    if (!projectId) {
+      showNotification('error', 'Project ID is required to create a task');
+      return false;
     }
 
     setErrors(newErrors);
@@ -61,8 +67,17 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
       return;
     }
 
+    if (!projectId) {
+      showNotification('error', 'Project ID is required to create a task');
+      return;
+    }
+
     try {
-      await handleCreateTask(formData);
+      const taskData: TaskCreate = {
+        ...formData,
+        project_id: projectId
+      };
+      await handleCreateTask(taskData);
       showNotification('success', 'Task created successfully!');
       handleClose();
     } catch (error: any) {
@@ -80,7 +95,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose }) =>
     onClose();
   };
 
-  const handleInputChange = (field: keyof TaskCreate, value: string) => {
+  const handleInputChange = (field: keyof Omit<TaskCreate, 'project_id'>, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {

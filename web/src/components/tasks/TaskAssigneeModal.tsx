@@ -72,6 +72,7 @@ const TaskAssigneeModal: React.FC<TaskAssigneeModalProps> = ({ isOpen, task, onC
     try {
       await handleUpdateTask(task.id, {
         owner_id: selectedUserId || undefined
+        // No need to include project_id since it's optional in TaskUpdate
       });
       
       const action = selectedUserId ? 'assigned' : 'unassigned';

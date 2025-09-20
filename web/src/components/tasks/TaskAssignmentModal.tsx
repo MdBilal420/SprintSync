@@ -42,6 +42,7 @@ export const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
         taskId: task.id,
         taskData: {
           owner_id: selectedUserId || undefined,
+          // No need to include project_id since it's optional in TaskUpdate
         }
       })).unwrap();
       
