@@ -184,12 +184,20 @@ export const suggestTaskTitles = async (params: {
   return response.data;
 };
 
-// User management (admin only)
+// User management
 export const getUsers = async (params?: {
   skip?: number;
   limit?: number;
 }): Promise<PaginatedResponse<User>> => {
   const response: AxiosResponse<PaginatedResponse<User>> = await api.get('/users', { params });
+  return response.data;
+};
+
+export const getAccessibleUsers = async (params?: {
+  skip?: number;
+  limit?: number;
+}): Promise<User[]> => {
+  const response: AxiosResponse<User[]> = await api.get('/users/accessible', { params });
   return response.data;
 };
 
