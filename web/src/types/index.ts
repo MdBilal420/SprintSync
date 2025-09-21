@@ -95,7 +95,6 @@ export interface TaskUpdate {
   status?: TaskStatus;
   total_minutes?: number;
   project_id?: string;  // Made optional again
-  user_id?: string;  // Add user_id for assignee
   owner_id?: string;
 }
 

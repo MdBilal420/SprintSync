@@ -257,6 +257,25 @@ async def partial_update_task(
             detail="Task not found"
         )
     
+    # Handle task assignment if owner_id is provided
+    if task_update.owner_id is not None:
+        # Check if user can assign/unassign this task
+        if task_update.owner_id is None:
+            # Unassigning task
+            if not can_unassign_task(db, task_id, current_user.id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You don't have permission to unassign this task"
+                )
+        else:
+            # Assigning task
+            if not can_assign_task(db, task_id, current_user.id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You don't have permission to assign this task"
+                )
+        task.owner_id = task_update.owner_id
+    
     # Update fields if provided (partial update)
     if task_update.title is not None:
         task.title = task_update.title
@@ -310,6 +329,25 @@ async def update_task_endpoint(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found"
         )
+    
+    # Handle task assignment if owner_id is provided
+    if task_update.owner_id is not None:
+        # Check if user can assign/unassign this task
+        if task_update.owner_id is None:
+            # Unassigning task
+            if not can_unassign_task(db, task_id, current_user.id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You don't have permission to unassign this task"
+                )
+        else:
+            # Assigning task
+            if not can_assign_task(db, task_id, current_user.id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You don't have permission to assign this task"
+                )
+        task.owner_id = task_update.owner_id
     
     # Update fields if provided
     if task_update.title is not None:
