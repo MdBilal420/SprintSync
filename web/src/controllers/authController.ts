@@ -31,7 +31,7 @@ export const useAuthController = () => {
         message: 'Successfully logged in!',
         duration: 3000,
       }));
-      navigate('/dashboard');
+      navigate('/projects');
       return result;
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : (error || 'Login failed');
@@ -52,7 +52,7 @@ export const useAuthController = () => {
         message: 'Account created successfully!',
         duration: 3000,
       }));
-      navigate('/dashboard');
+      navigate('/projects');
       return result;
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : (error || 'Registration failed');

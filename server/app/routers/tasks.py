@@ -17,8 +17,9 @@ from ..schemas.task import TaskResponse, TaskCreate, TaskUpdate, TaskWithUser
 from ..auth import get_current_active_user, get_current_admin_user
 from ..crud import (
     get_tasks, get_user_tasks, get_project_tasks, get_user_project_tasks,
-    get_assigned_tasks, get_project_assigned_tasks, create_task, update_task,
-    delete_task, can_view_task, can_edit_task, get_task as crud_get_task
+    get_owned_tasks, get_project_owned_tasks, get_project_tasks_for_members, 
+    create_task, update_task, delete_task, can_view_task, can_edit_task, 
+    can_assign_task, can_unassign_task, get_task as crud_get_task
 )
 
 router = APIRouter(prefix="/tasks", tags=["Task Management"])
@@ -27,7 +28,7 @@ router = APIRouter(prefix="/tasks", tags=["Task Management"])
 @router.get("/", response_model=dict)
 async def list_user_tasks(
     project_id: Optional[UUID] = Query(None, description="Filter tasks by project ID"),
-    assigned_to_id: Optional[UUID] = Query(None, description="Filter tasks assigned to user"),
+    owner_id: Optional[UUID] = Query(None, description="Filter tasks owned by user"),
     status: Optional[TaskStatus] = Query(None, description="Filter tasks by status"),
     skip: int = Query(0, ge=0, description="Number of tasks to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of tasks to return"),
@@ -37,11 +38,13 @@ async def list_user_tasks(
     db: Session = Depends(get_db)
 ):
     """
-    List current user's tasks with optional filtering and sorting.
+    List tasks with optional filtering and sorting.
+    All project members can see all tasks within a project.
+    Users can only edit tasks they created or own.
     
     Args:
         project_id: Optional project ID to filter tasks
-        assigned_to_id: Optional user ID to filter assigned tasks
+        owner_id: Optional user ID to filter owned tasks
         status: Optional status filter
         skip: Number of tasks to skip for pagination
         limit: Maximum number of tasks to return
@@ -51,24 +54,32 @@ async def list_user_tasks(
         db: Database session
         
     Returns:
-        Paginated list of user's tasks
+        Paginated list of tasks
     """
     # If project_id is specified, get project tasks
     if project_id:
-        if assigned_to_id:
-            # Get tasks assigned to specific user within project
-            tasks = get_project_assigned_tasks(db, project_id, assigned_to_id, skip, limit)
-            total = len(get_project_assigned_tasks(db, project_id, assigned_to_id, 0, 1000000))
+        # Check if user has access to this project
+        from ..crud import is_project_member
+        if not is_project_member(db, project_id, current_user.id) and not current_user.is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this project"
+            )
+        
+        if owner_id:
+            # Get tasks owned by specific user within project
+            tasks = get_project_owned_tasks(db, project_id, owner_id, skip, limit)
+            total = len(get_project_owned_tasks(db, project_id, owner_id, 0, 1000000))
         else:
-            # Get all tasks within project
-            tasks = get_project_tasks(db, project_id, skip, limit)
-            total = len(get_project_tasks(db, project_id, 0, 1000000))
+            # Get all tasks within project (all members can see all tasks)
+            tasks = get_project_tasks_for_members(db, project_id, skip, limit)
+            total = len(get_project_tasks_for_members(db, project_id, 0, 1000000))
     else:
         # Get user's tasks (original behavior)
-        if assigned_to_id:
-            # Get tasks assigned to specific user
-            tasks = get_assigned_tasks(db, assigned_to_id, skip, limit)
-            total = len(get_assigned_tasks(db, assigned_to_id, 0, 1000000))
+        if owner_id:
+            # Get tasks owned by specific user
+            tasks = get_owned_tasks(db, owner_id, skip, limit)
+            total = len(get_owned_tasks(db, owner_id, 0, 1000000))
         else:
             # Get user's own tasks
             tasks = get_user_tasks(db, current_user.id, skip, limit)
@@ -109,7 +120,7 @@ async def list_user_tasks(
             "total_minutes": task.total_minutes,
             "user_id": str(task.user_id),
             "project_id": str(task.project_id) if task.project_id else None,
-            "assigned_to_id": str(task.assigned_to_id) if task.assigned_to_id else None,
+            "owner_id": str(task.owner_id) if task.owner_id else None,
             "created_at": task.created_at.isoformat(),
             "updated_at": task.updated_at.isoformat()
         }
@@ -128,7 +139,7 @@ async def list_user_tasks(
 async def create_task_endpoint(
     task_create: TaskCreate,
     project_id: Optional[UUID] = Query(None, description="Project ID to associate task with"),
-    assigned_to_id: Optional[UUID] = Query(None, description="User ID to assign task to"),
+    owner_id: Optional[UUID] = Query(None, description="User ID to assign task to"),
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
@@ -138,7 +149,7 @@ async def create_task_endpoint(
     Args:
         task_create: Task creation data
         project_id: Optional project ID to associate task with
-        assigned_to_id: Optional user ID to assign task to
+        owner_id: Optional user ID to assign task to
         current_user: Current authenticated user
         db: Database session
         
@@ -154,8 +165,8 @@ async def create_task_endpoint(
                 detail="You don't have access to this project"
             )
     
-    # If assigned_to_id is specified (and different from current user), verify it's valid
-    if assigned_to_id and assigned_to_id != current_user.id:
+    # If owner_id is specified (and different from current user), verify it's valid
+    if owner_id and owner_id != current_user.id:
         # Only allow assigning to self or if user has permission (project admin, owner, or system admin)
         from ..crud import is_project_admin, is_project_owner
         can_assign = (
@@ -169,7 +180,7 @@ async def create_task_endpoint(
                 detail="You don't have permission to assign tasks to other users"
             )
     
-    db_task = create_task(db, task_create, current_user.id, project_id, assigned_to_id)
+    db_task = create_task(db, task_create, current_user.id, project_id, owner_id)
     return db_task
 
 
@@ -246,6 +257,25 @@ async def partial_update_task(
             detail="Task not found"
         )
     
+    # Handle task assignment if owner_id is provided
+    if task_update.owner_id is not None:
+        # Check if user can assign/unassign this task
+        if task_update.owner_id is None:
+            # Unassigning task
+            if not can_unassign_task(db, task_id, current_user.id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You don't have permission to unassign this task"
+                )
+        else:
+            # Assigning task
+            if not can_assign_task(db, task_id, current_user.id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You don't have permission to assign this task"
+                )
+        task.owner_id = task_update.owner_id
+    
     # Update fields if provided (partial update)
     if task_update.title is not None:
         task.title = task_update.title
@@ -299,6 +329,25 @@ async def update_task_endpoint(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found"
         )
+    
+    # Handle task assignment if owner_id is provided
+    if task_update.owner_id is not None:
+        # Check if user can assign/unassign this task
+        if task_update.owner_id is None:
+            # Unassigning task
+            if not can_unassign_task(db, task_id, current_user.id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You don't have permission to unassign this task"
+                )
+        else:
+            # Assigning task
+            if not can_assign_task(db, task_id, current_user.id):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You don't have permission to assign this task"
+                )
+        task.owner_id = task_update.owner_id
     
     # Update fields if provided
     if task_update.title is not None:
@@ -397,6 +446,60 @@ async def add_time_to_task(
         )
     
     task.total_minutes += minutes
+    db.commit()
+    db.refresh(task)
+    return task
+
+
+@router.patch("/{task_id}/assign", response_model=TaskResponse)
+async def assign_task(
+    task_id: UUID,
+    owner_id: Optional[UUID] = Query(None, description="User ID to assign task to (null to unassign)"),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Assign or unassign a task.
+    Only admins can assign tasks to others.
+    Task owners can unassign themselves.
+    
+    Args:
+        task_id: UUID of the task to assign
+        owner_id: User ID to assign to (null to unassign)
+        current_user: Current authenticated user
+        db: Database session
+        
+    Returns:
+        Updated task information
+        
+    Raises:
+        HTTPException: If task not found or user doesn't have permission
+    """
+    task = crud_get_task(db, task_id)
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    
+    # Check if user can assign/unassign this task
+    if owner_id is None:
+        # Unassigning task
+        if not can_unassign_task(db, task_id, current_user.id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to unassign this task"
+            )
+    else:
+        # Assigning task
+        if not can_assign_task(db, task_id, current_user.id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to assign this task"
+            )
+    
+    # Update the task
+    task.owner_id = owner_id
     db.commit()
     db.refresh(task)
     return task

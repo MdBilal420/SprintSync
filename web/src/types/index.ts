@@ -7,6 +7,7 @@ export interface User {
   id: string;
   email: string;
   is_admin: boolean;
+  description?: string;  // New description field
   created_at: string;
 }
 
@@ -75,8 +76,8 @@ export interface Task {
   status: TaskStatus;
   total_minutes: number;
   user_id: string;
-  project_id?: string;
-  assigned_to_id?: string;
+  project_id: string;
+  owner_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -84,8 +85,8 @@ export interface Task {
 export interface TaskCreate {
   title: string;
   description?: string;
-  project_id?: string;
-  assigned_to_id?: string;
+  project_id?: string;  // Made optional since it's sent as a query parameter
+  owner_id?: string;  // Add owner_id for assignee
 }
 
 export interface TaskUpdate {
@@ -93,8 +94,8 @@ export interface TaskUpdate {
   description?: string;
   status?: TaskStatus;
   total_minutes?: number;
-  project_id?: string;
-  assigned_to_id?: string;
+  project_id?: string;  // Made optional again
+  owner_id?: string;
 }
 
 // Authentication types

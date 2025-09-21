@@ -22,6 +22,7 @@ const TeamMembersPage: React.FC = () => {
   } = useProjectsController();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   // Load projects on component mount
   useEffect(() => {
@@ -38,18 +39,21 @@ const TeamMembersPage: React.FC = () => {
     }
   }, [projects, loadProjectMembers]);
 
-  // Filter members based on search term
+  // Filter members based on search term and selected project
   const filteredMembers = members.filter(member => {
     // Check if member is defined before accessing properties
     if (!member) return false;
+    
+    // Filter by selected project if one is selected
+    if (selectedProjectId && member.project_id !== selectedProjectId) {
+      return false;
+    }
     
     // Since we don't have user details in the member object, we'll filter by ID for now
     // In a real implementation, we'd have user details attached to the member object
     return member.user_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
            member.project_id?.toLowerCase().includes(searchTerm.toLowerCase());
   });
-
-  console.log('Members:', members,projects);
 
   // Get role icon
   const getRoleIcon = (role: string) => {
@@ -99,7 +103,7 @@ const TeamMembersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Search */}
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -110,6 +114,21 @@ const TeamMembersPage: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        </div>
+        
+        <div>
+          <select
+            className="input-field"
+            value={selectedProjectId || ''}
+            onChange={(e) => setSelectedProjectId(e.target.value || null)}
+          >
+            <option value="">All Projects</option>
+            {projects?.map(project => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -126,11 +145,11 @@ const TeamMembersPage: React.FC = () => {
         <div className="card text-center py-12">
           <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {searchTerm ? 'No matching members' : 'No team members yet'}
+            {searchTerm || selectedProjectId ? 'No matching members' : 'No team members yet'}
           </h3>
           <p className="text-gray-500">
-            {searchTerm
-              ? 'Try adjusting your search'
+            {searchTerm || selectedProjectId
+              ? 'Try adjusting your search or filter'
               : 'Members will appear once added to projects'
             }
           </p>
@@ -150,12 +169,12 @@ const TeamMembersPage: React.FC = () => {
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                       <span className="text-gray-700 font-medium">
-                        {member.user.email.charAt(0).toUpperCase()}
+                        {member.user?.email?.charAt(0).toUpperCase() || member.user_id.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div className="ml-3">
                       <h3 className="text-lg font-medium text-gray-900">
-                        {member.user.email?.split("@")[0] || 'Unknown'}
+                        {member.user?.email?.split("@")[0] || 'Unknown'}
                       </h3>
                       <p className="text-sm text-gray-500">
                         Project: {getProjectName(member.project_id) || 'N/A'}
