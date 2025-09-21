@@ -154,6 +154,8 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
     return members.filter((member: any) => (member.project_id === projectId));
   }, [projectId, members]);
 
+  console.log("projectMembers",projectMembers)
+
   if (!isOpen) return null;
 
   return (

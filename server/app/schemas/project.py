@@ -60,4 +60,15 @@ class ProjectWithMembers(ProjectResponse):
 
 # Import here to avoid circular imports
 from .project_member import ProjectMemberResponse
-ProjectWithMembers.model_rebuild()
+
+# Handle both Pydantic v1 and v2
+try:
+    # Pydantic v2
+    ProjectWithMembers.model_rebuild()
+except AttributeError:
+    # Pydantic v1 - use update_forward_refs instead
+    try:
+        ProjectWithMembers.update_forward_refs()
+    except Exception:
+        # If both fail, we'll rely on the forward references being resolved later
+        pass
