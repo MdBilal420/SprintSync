@@ -3,7 +3,7 @@
  * Modal for creating new tasks
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { X, Wand2, Sparkles, Copy, Check, User } from 'lucide-react';
 import { useTasksController } from '../../controllers/tasksController';
 import { useUIController } from '../../controllers/uiController';
@@ -149,6 +149,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
     }
   };
 
+  const projectMembers = useMemo(() => {
+    if (!projectId || !members) return [];
+    return members.filter((member: any) => (member.project_id === projectId));
+  }, [projectId, members]);
+
   if (!isOpen) return null;
 
   return (
@@ -207,7 +212,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
             </div>
 
             {/* Assignee */}
-            {members && members.length > 0 && (
+            {projectMembers && projectMembers.length > 0 && (
               <div>
                 <label htmlFor="assignee" className="block text-sm font-medium text-gray-700 mb-1">
                   Assignee
@@ -221,7 +226,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
                     disabled={isLoading}
                   >
                     <option value="">Unassigned</option>
-                    {members.map((member: any) => (
+                    {projectMembers.map((member: any) => (
                       <option key={member.user_id} value={member.user_id}>
                         {member.user?.email || `User ${member.user_id.substring(0, 8)}`}
                       </option>
