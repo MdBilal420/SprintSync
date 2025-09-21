@@ -3,7 +3,7 @@
  * Displays tasks in a Kanban board layout with drag and drop functionality
  */
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { 
   User, 
   MoreHorizontal, 
@@ -14,6 +14,9 @@ import {
 } from 'lucide-react';
 import type { Task, TaskStatus, ProjectMember } from '../../types';
 import { getStatusColor, formatStatus } from '../../utils/formatters';
+import { useSelector } from 'react-redux';
+
+import type { RootState } from '../../models/store';
 
 interface KanbanColumnProps {
   title: string;
@@ -153,7 +156,7 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
         </div>
         <div className="ml-3">
           <p className="text-sm font-medium text-gray-900">
-            User {member.user_id.substring(0, 8)}
+            {member.user ? member.user['email'] : member.user_id.substring(0, 8)}
           </p>
           <div className="flex items-center text-xs text-gray-500 mt-1">
             <span className="flex items-center">
@@ -172,7 +175,7 @@ interface ProjectKanbanBoardProps {
   members: ProjectMember[];
   onTaskStatusChange: (taskId: string, newStatus: TaskStatus) => void;
   onTaskClick: (task: Task) => void;
-  onAddTask: () => void;
+  onAddMember: () => void;
 }
 
 const ProjectKanbanBoard: React.FC<ProjectKanbanBoardProps> = ({ 
@@ -180,14 +183,27 @@ const ProjectKanbanBoard: React.FC<ProjectKanbanBoardProps> = ({
   members, 
   onTaskStatusChange,
   onTaskClick,
-  onAddTask
+  onAddMember
 }) => {
+
+const {
+    currentProject
+  } = useSelector((state: RootState) => state.projects);
+
   // Group tasks by status
   const tasksByStatus = {
     todo: tasks.filter(task => task.status === 'todo'),
     in_progress: tasks.filter(task => task.status === 'in_progress'),
     done: tasks.filter(task => task.status === 'done')
   };
+
+  const projectMembers = useMemo(() => {
+    if (!currentProject) {
+      return [];
+    }
+    return members.filter(member => member.project_id === currentProject.id);
+  }, [currentProject, members]);
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-200px)]">
@@ -230,22 +246,22 @@ const ProjectKanbanBoard: React.FC<ProjectKanbanBoardProps> = ({
         </div>
         
         <div className="flex-1 overflow-y-auto">
-          <div className="p-3">
+          <div className="p-3 space-y-2">
             <button 
-              className="w-full flex items-center justify-center p-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:text-gray-700 hover:border-gray-400 transition-colors"
-              onClick={onAddTask}
+              className="w-full flex items-center justify-center p-2 border-2 border-dashed border-blue-300 rounded-lg text-blue-500 hover:text-blue-700 hover:border-blue-400 transition-colors"
+              onClick={onAddMember}
             >
-              <Plus className="h-4 w-4 mr-1" />
-              <span className="text-sm">Add Task</span>
+              <User className="h-4 w-4 mr-1" />
+              <span className="text-sm">Add Member</span>
             </button>
           </div>
           
           <div className="divide-y divide-gray-100">
-            {members.map(member => (
+            {projectMembers.map(member => (
               <MemberCard key={member.id} member={member} />
             ))}
             
-            {members.length === 0 && (
+            {projectMembers.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 <User className="h-8 w-8 mx-auto text-gray-300" />
                 <p className="text-sm mt-2">No members in this project</p>

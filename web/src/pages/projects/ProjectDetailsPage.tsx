@@ -111,6 +111,10 @@ const ProjectDetailsPage: React.FC = () => {
     openEditTaskModal(task);
   };
 
+  const handleAddMember = () => {
+    setIsMemberModalOpen(true);
+  };
+
   if (isLoading && !currentProject) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -248,6 +252,7 @@ const ProjectDetailsPage: React.FC = () => {
           onTaskStatusChange={handleTaskStatusChange}
           onTaskClick={handleTaskClick}
           onAddTask={() => openCreateTaskModal(projectId)}
+          onAddMember={handleAddMember}
         />
       )}
 
