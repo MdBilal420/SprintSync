@@ -13,7 +13,7 @@ import { MemoryVectorStore } from "langchain/vectorstores/memory";
 import { ChatOpenAI } from "@langchain/openai";
 
 
-// const openAIApiKey = "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";
+// Use environment variable properly
 const openAIApiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
 const embeddings = new OpenAIEmbeddings({
@@ -25,7 +25,7 @@ const embeddings = new OpenAIEmbeddings({
 const llm = new ChatOpenAI({
   model: "gpt-4",
   temperature: 0.1,
-  apiKey:openAIApiKey,
+  apiKey: openAIApiKey,
 });
 
 const getAssigneeScore = async (projectMembers: ProjectMember[], task: string) => {
