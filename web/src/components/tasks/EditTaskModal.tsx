@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { X, Clock, User } from 'lucide-react';
 import { useTasksController } from '../../controllers/tasksController';
 import { useUIController } from '../../controllers/uiController';
@@ -33,6 +34,10 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose, pr
 
   const [timeToAdd, setTimeToAdd] = useState<string>('');
   const [errors, setErrors] = useState<Partial<Omit<TaskUpdate, 'project_id'>>>({});
+
+  const projectMembers = useMemo(() => {
+    return members ? members.filter(member => member.project_id === projectId) : [];  
+  }, [members, projectId]);
 
   // Update form data when task changes
   useEffect(() => {
@@ -214,7 +219,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose, pr
             </div>
 
             {/* Assignee */}
-            {members && members.length > 0 && (
+            {projectMembers && projectMembers.length > 0 && (
               <div>
                 <label htmlFor="edit-assignee" className="block text-sm font-medium text-gray-700 mb-1">
                   Assignee
@@ -228,7 +233,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose, pr
                     disabled={isLoading}
                   >
                     <option value="">Unassigned</option>
-                    {members.map((member: ProjectMember) => (
+                    {projectMembers && projectMembers.map((member: ProjectMember) => (
                       <option key={member.user_id} value={member.user_id}>
                         {member.user?.email || `User ${member.user_id.substring(0, 8)}`}
                       </option>

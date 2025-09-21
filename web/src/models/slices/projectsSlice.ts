@@ -4,7 +4,7 @@
  */
 
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import type { Project, ProjectCreate, ProjectUpdate, ProjectMember, ProjectMemberCreate, ProjectMemberUpdate } from '../../types/index.ts';
+import type { Project, ProjectCreate, ProjectUpdate, ProjectMember, ProjectMemberCreate, ProjectMemberUpdate, User } from '../../types/index.ts';
 import * as apiService from '../api';
 
 interface ProjectsState {
@@ -12,6 +12,7 @@ interface ProjectsState {
   currentProject: Project | null;
   members: ProjectMember[]; // This will now store members from all projects
   membersByProject: Record<string, ProjectMember[]>; // New field to store members by project ID
+  accessibleUsers: User[]; // New field to store accessible users
   totalProjects: number;
   currentPage: number;
   totalPages: number;
@@ -24,6 +25,7 @@ const initialState: ProjectsState = {
   currentProject: null,
   members: [],
   membersByProject: {},
+  accessibleUsers: [],
   totalProjects: 0,
   currentPage: 1,
   totalPages: 0,
@@ -32,6 +34,18 @@ const initialState: ProjectsState = {
 };
 
 // Async thunks
+export const fetchAccessibleUsers = createAsyncThunk(
+  'projects/fetchAccessibleUsers',
+  async (_, { rejectWithValue }) => {
+    try {
+      const users = await apiService.getAccessibleUsers();
+      return users;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.detail || 'Failed to fetch accessible users');
+    }
+  }
+);
+
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
   async (params: {
@@ -301,6 +315,19 @@ const projectsSlice = createSlice({
         }
       })
       .addCase(removeProjectMember.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+      // Fetch accessible users
+      .addCase(fetchAccessibleUsers.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchAccessibleUsers.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.accessibleUsers = action.payload;
+      })
+      .addCase(fetchAccessibleUsers.rejected, (state, action) => {
+        state.isLoading = false;
         state.error = action.payload as string;
       });
   },
