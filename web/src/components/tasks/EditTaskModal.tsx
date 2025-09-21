@@ -29,7 +29,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose, pr
     description: '',
     status: 'todo',
     total_minutes: 0,
-    user_id: '', // Add user_id to form data
+    owner_id: '', // Change user_id to owner_id
   });
 
   const [timeToAdd, setTimeToAdd] = useState<string>('');
@@ -47,7 +47,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose, pr
         description: task.description || '',
         status: task.status,
         total_minutes: task.total_minutes,
-        user_id: task.user_id || '', // Add user_id to form data
+        owner_id: task.owner_id || '', // Change user_id to owner_id
       });
     }
   }, [task]);
@@ -128,7 +128,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose, pr
       description: '',
       status: 'todo',
       total_minutes: 0,
-      user_id: '', // Add user_id to reset
+      owner_id: '', // Change user_id to owner_id
     });
     setTimeToAdd('');
     setErrors({});
@@ -228,8 +228,8 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose, pr
                   <select
                     id="edit-assignee"
                     className="input-field w-full pl-10"
-                    value={formData.user_id || ''}
-                    onChange={(e) => handleInputChange('user_id', e.target.value)}
+                    value={formData.owner_id || ''} // Change user_id to owner_id
+                    onChange={(e) => handleInputChange('owner_id', e.target.value)} // Change user_id to owner_id
                     disabled={isLoading}
                   >
                     <option value="">Unassigned</option>
