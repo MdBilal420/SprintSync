@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Users, Search, Mail, Calendar, Shield, Crown, User } from 'lucide-react';
+import { Users, Search, Mail, Calendar, Shield, Crown, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuthController } from '../../controllers/authController';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
@@ -19,6 +19,8 @@ const MembersPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  // State to track which user descriptions are expanded
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
 
   // Load users on component mount
   useEffect(() => {
@@ -53,6 +55,14 @@ const MembersPage: React.FC = () => {
       setFilteredUsers(filtered);
     }
   }, [searchTerm, users]);
+
+  // Toggle description visibility for a user
+  const toggleDescription = (userId: string) => {
+    setExpandedDescriptions(prev => ({
+      ...prev,
+      [userId]: !prev[userId]
+    }));
+  };
 
   // Get role icon
   const getRoleIcon = (isAdmin: boolean) => {
@@ -156,8 +166,28 @@ const MembersPage: React.FC = () => {
               </div>
               
               {user.description && (
-                <div className="text-sm text-gray-600 mb-3 line-clamp-2">
-                  {user.description}
+                <div className="mb-3">
+                  <div className={`${expandedDescriptions[user.id] ? '' : 'line-clamp-2'} text-sm text-gray-600 whitespace-pre-wrap`}>
+                    {user.description}
+                  </div>
+                  {user.description.length > 100 && (
+                    <button
+                      onClick={() => toggleDescription(user.id)}
+                      className="mt-1 text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                    >
+                      {expandedDescriptions[user.id] ? (
+                        <>
+                          <span>Show less</span>
+                          <ChevronUp className="h-4 w-4 ml-1" />
+                        </>
+                      ) : (
+                        <>
+                          <span>Show more</span>
+                          <ChevronDown className="h-4 w-4 ml-1" />
+                        </>
+                      )}
+                    </button>
+                  )}
                 </div>
               )}
               
