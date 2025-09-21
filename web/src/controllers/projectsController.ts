@@ -17,6 +17,7 @@ import {
   removeProjectMember,
   clearError,
   setCurrentProject,
+  fetchAccessibleUsers,
 } from '../models/slices/projectsSlice.ts';
 import type {
   Project,
@@ -113,6 +114,14 @@ export const useProjectsController = () => {
     [dispatch]
   );
 
+  // Fetch accessible users
+  const loadAccessibleUsers = useCallback(
+    () => {
+      return dispatch(fetchAccessibleUsers());
+    },
+    [dispatch]
+  );
+
   // Add a member to a project
   const handleAddProjectMember = useCallback(
     async (projectId: string, memberData: ProjectMemberCreate) => {
@@ -170,6 +179,7 @@ export const useProjectsController = () => {
     handleDeleteProject,
     handleSetCurrentProject,
     loadProjectMembers,
+    loadAccessibleUsers,
     handleAddProjectMember,
     handleRemoveProjectMember,
     handleClearError,

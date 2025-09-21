@@ -12,6 +12,8 @@ import TasksPage from './pages/tasks/TasksPage';
 import ProjectsPage from './pages/projects/ProjectsPage';
 import ProjectDetailsPage from './pages/projects/ProjectDetailsPage';
 import TeamMembersPage from './pages/projects/TeamMembersPage';
+import MembersPage from './pages/members/MembersPage';
+import UserProfilePage from './pages/profile/UserProfilePage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import NotificationProvider from './components/common/NotificationProvider';
 import { useAuthController } from './controllers/authController';
@@ -49,7 +51,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   return <Layout>{children}</Layout>;
 };
 
-// Public Route wrapper (redirect to dashboard if authenticated)
+// Public Route wrapper (redirect to projects page if authenticated)
 interface PublicRouteProps {
   children: React.ReactNode;
 }
@@ -66,7 +68,7 @@ const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/projects" replace />;
   }
 
   return <>{children}</>;
@@ -147,6 +149,14 @@ function App() {
                 }
               />
               <Route
+                path="/members"
+                element={
+                  <ProtectedRoute>
+                    <MembersPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/admin"
                 element={
                   <ProtectedRoute>
@@ -154,9 +164,17 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <UserProfilePage />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Default redirect */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<Navigate to="/projects" replace />} />
               
               {/* 404 fallback */}
               <Route 

@@ -6,7 +6,7 @@ Represents users in the system with authentication and role management.
 
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from ..database.connection import Base
@@ -24,6 +24,9 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     
+    # User profile
+    description = Column(Text, nullable=True)  # New description field for skills/expertise
+    
     # User role
     is_admin = Column(Boolean, default=False, nullable=False)
     
@@ -33,7 +36,7 @@ class User(Base):
     
     # Relationships
     tasks = relationship("Task", back_populates="user", cascade="all, delete-orphan", foreign_keys="Task.user_id")
-    assigned_tasks = relationship("Task", back_populates="assigned_to", foreign_keys="Task.assigned_to_id")
+    owned_tasks = relationship("Task", back_populates="owner", foreign_keys="Task.owner_id")
     owned_projects = relationship("Project", back_populates="owner", cascade="all, delete-orphan")
     project_memberships = relationship("ProjectMember", back_populates="user", cascade="all, delete-orphan")
     

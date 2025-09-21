@@ -5,7 +5,7 @@
 
 import React, { type ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LogOut, User, CheckSquare, Home, Menu, X } from 'lucide-react';
+import { LogOut, User, CheckSquare, Home, Menu, X, Users } from 'lucide-react';
 import { useAuthController } from '../../controllers/authController.ts';
 
 interface LayoutProps {
@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="nav-container">
             {/* Logo and Brand */}
             <div className="nav-brand">
-              <Link to="/dashboard" className="flex items-center space-x-3">
+              <Link to="/projects" className="flex items-center space-x-3">
                 <div className="p-2 bg-blue-600 rounded-lg">
                   <CheckSquare className="h-6 w-6 text-white" />
                 </div>
@@ -52,13 +52,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               {/* Desktop Navigation Links */}
               <div className="hidden-mobile nav-links">
                 <Link
-                  to="/dashboard"
+                  to="/projects"
                   className={`nav-link ${
-                    isActive('/dashboard') ? 'nav-link-active' : ''
+                    isActive('/projects') ? 'nav-link-active' : ''
                   }`}
                 >
                   <Home className="h-4 w-4 mr-2 inline" />
-                  Dashboard
+                  Projects
                 </Link>
                 
                 <Link
@@ -69,6 +69,26 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <CheckSquare className="h-4 w-4 mr-2 inline" />
                   Tasks
+                </Link>
+                
+                <Link
+                  to="/members"
+                  className={`nav-link ${
+                    isActive('/members') ? 'nav-link-active' : ''
+                  }`}
+                >
+                  <Users className="h-4 w-4 mr-2 inline" />
+                  Members
+                </Link>
+                
+                <Link
+                  to="/profile"
+                  className={`nav-link ${
+                    isActive('/profile') ? 'nav-link-active' : ''
+                  }`}
+                >
+                  <User className="h-4 w-4 mr-2 inline" />
+                  Profile
                 </Link>
               </div>
             </div>
@@ -84,9 +104,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </button>
               
               <div className="hidden-mobile flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 rounded-full">
+                <Link 
+                  to="/profile"
+                  className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                >
                   <User className="h-5 w-5 text-gray-600" />
-                </div>
+                </Link>
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-gray-900 truncate max-w-[120px] sm:max-w-[150px] md:max-w-[200px]">
                     {user?.email}
@@ -129,14 +152,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="mobile-menu-content">
               <div className="space-y-1">
                 <Link
-                  to="/dashboard"
+                  to="/projects"
                   className={`nav-link block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive('/dashboard') ? 'nav-link-active bg-blue-50' : 'text-gray-700'
+                    isActive('/projects') ? 'nav-link-active bg-blue-50' : 'text-gray-700'
                   }`}
                   onClick={closeMobileMenu}
                 >
                   <Home className="h-4 w-4 mr-2 inline" />
-                  Dashboard
+                  Projects
                 </Link>
                 
                 <Link
@@ -149,13 +172,38 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <CheckSquare className="h-4 w-4 mr-2 inline" />
                   Tasks
                 </Link>
+                
+                <Link
+                  to="/members"
+                  className={`nav-link block px-3 py-2 rounded-md text-base font-medium ${
+                    isActive('/members') ? 'nav-link-active bg-blue-50' : 'text-gray-700'
+                  }`}
+                  onClick={closeMobileMenu}
+                >
+                  <Users className="h-4 w-4 mr-2 inline" />
+                  Members
+                </Link>
+                
+                <Link
+                  to="/profile"
+                  className={`nav-link block px-3 py-2 rounded-md text-base font-medium ${
+                    isActive('/profile') ? 'nav-link-active bg-blue-50' : 'text-gray-700'
+                  }`}
+                  onClick={closeMobileMenu}
+                >
+                  <User className="h-4 w-4 mr-2 inline" />
+                  Profile
+                </Link>
               </div>
               
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-gray-100 rounded-full">
+                  <Link 
+                    to="/profile"
+                    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                  >
                     <User className="h-5 w-5 text-gray-600" />
-                  </div>
+                  </Link>
                   <div className="flex flex-col">
                     <span className="text-sm font-medium text-gray-900">
                       {user?.email}

@@ -54,6 +54,32 @@ async def get_user_profile(current_user: User = Depends(get_current_active_user)
     return current_user
 
 
+@router.get("/accessible", response_model=List[UserResponse])
+async def list_accessible_users(
+    skip: int = Query(0, ge=0, description="Number of users to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of users to return"),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    List users that the current user has access to (based on shared projects).
+    Regular users can see other users they share projects with.
+    
+    Args:
+        skip: Number of users to skip for pagination
+        limit: Maximum number of users to return
+        current_user: Current authenticated user
+        db: Database session
+        
+    Returns:
+        List of accessible users
+    """
+    # For now, return all users (in a real implementation, this would filter based on shared projects)
+    # TODO: Implement proper filtering based on shared projects
+    users = db.query(User).offset(skip).limit(limit).all()
+    return users
+
+
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: UUID,
@@ -116,6 +142,53 @@ async def update_user_profile(
     # Note: Only admins can change admin status, regular users cannot promote themselves
     if user_update.is_admin is not None and current_user.is_admin:
         current_user.is_admin = user_update.is_admin
+        
+    # Update description if provided
+    if user_update.description is not None:
+        current_user.description = user_update.description
+    
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.patch("/profile", response_model=UserResponse)
+async def partial_update_user_profile(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Partially update current user's profile.
+    
+    Args:
+        user_update: User update data
+        current_user: Current authenticated user
+        db: Database session
+        
+    Returns:
+        Updated user information
+        
+    Raises:
+        HTTPException: If email already exists
+    """
+    # Check if email is being updated and if it already exists
+    if user_update.email and user_update.email != current_user.email:
+        existing_user = db.query(User).filter(User.email == user_update.email).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+        current_user.email = user_update.email
+    
+    # Note: Only admins can change admin status, regular users cannot promote themselves
+    if user_update.is_admin is not None and current_user.is_admin:
+        current_user.is_admin = user_update.is_admin
+        
+    # Update description if provided
+    if user_update.description is not None:
+        current_user.description = user_update.description
     
     db.commit()
     db.refresh(current_user)
@@ -164,6 +237,62 @@ async def update_user(
     # Update admin status if provided
     if user_update.is_admin is not None:
         user.is_admin = user_update.is_admin
+        
+    # Update description if provided
+    if user_update.description is not None:
+        user.description = user_update.description
+    
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@router.patch("/{user_id}", response_model=UserResponse)
+async def partial_update_user(
+    user_id: UUID,
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Partially update a specific user (admin only).
+    
+    Args:
+        user_id: UUID of the user to update
+        user_update: User update data
+        current_user: Current authenticated admin user
+        db: Database session
+        
+    Returns:
+        Updated user information
+        
+    Raises:
+        HTTPException: If user not found or email already exists
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Check if email is being updated and if it already exists
+    if user_update.email and user_update.email != user.email:
+        existing_user = db.query(User).filter(User.email == user_update.email).first()
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+        user.email = user_update.email
+    
+    # Update admin status if provided
+    if user_update.is_admin is not None:
+        user.is_admin = user_update.is_admin
+        
+    # Update description if provided
+    if user_update.description is not None:
+        user.description = user_update.description
     
     db.commit()
     db.refresh(user)
@@ -231,3 +360,4 @@ async def get_user_statistics(
         "admin_users": admin_users,
         "regular_users": regular_users
     }
+

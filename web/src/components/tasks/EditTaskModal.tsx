@@ -4,32 +4,40 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { X, Clock } from 'lucide-react';
+import { useMemo } from 'react';
+import { X, Clock, User } from 'lucide-react';
 import { useTasksController } from '../../controllers/tasksController';
 import { useUIController } from '../../controllers/uiController';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { formatMinutes } from '../../utils/formatters';
-import type { Task, TaskUpdate, TaskStatus } from '../../types';
+import type { Task, TaskUpdate, TaskStatus, ProjectMember } from '../../types';
 
 interface EditTaskModalProps {
   isOpen: boolean;
   task: Task | null;
   onClose: () => void;
+  projectId?: string;
+  members?: ProjectMember[]; // Add members prop
 }
 
-const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) => {
+const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose, projectId, members }) => {
   const { handleUpdateTask, handleLogTime, isLoading } = useTasksController();
   const { showNotification } = useUIController();
   
-  const [formData, setFormData] = useState<TaskUpdate>({
+  const [formData, setFormData] = useState<Omit<TaskUpdate, 'project_id'>>({
     title: '',
     description: '',
     status: 'todo',
     total_minutes: 0,
+    owner_id: '', // Change user_id to owner_id
   });
 
   const [timeToAdd, setTimeToAdd] = useState<string>('');
-  const [errors, setErrors] = useState<Partial<TaskUpdate>>({});
+  const [errors, setErrors] = useState<Partial<Omit<TaskUpdate, 'project_id'>>>({});
+
+  const projectMembers = useMemo(() => {
+    return members ? members.filter(member => member.project_id === projectId) : [];  
+  }, [members, projectId]);
 
   // Update form data when task changes
   useEffect(() => {
@@ -39,12 +47,13 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
         description: task.description || '',
         status: task.status,
         total_minutes: task.total_minutes,
+        owner_id: task.owner_id || '', // Change user_id to owner_id
       });
     }
   }, [task]);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<TaskUpdate> = {};
+    const newErrors: Partial<Omit<TaskUpdate, 'project_id'>> = {};
     
     if (!formData.title?.trim()) {
       newErrors.title = 'Title is required';
@@ -54,6 +63,12 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
 
     if (formData.description && formData.description.length > 1000) {
       newErrors.description = 'Description must be less than 1000 characters';
+    }
+
+    // Validate that project_id is provided
+    if (!projectId) {
+      showNotification('error', 'Project ID is required to update a task');
+      return false;
     }
 
     setErrors(newErrors);
@@ -68,7 +83,13 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
     }
 
     try {
-      await handleUpdateTask(task.id, formData);
+      // Include project_id in the update data
+      const updateData: TaskUpdate = {
+        ...formData,
+        project_id: projectId
+      };
+      
+      await handleUpdateTask(task.id, updateData);
       showNotification('success', 'Task updated successfully!');
       handleClose();
     } catch (error: any) {
@@ -107,13 +128,14 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
       description: '',
       status: 'todo',
       total_minutes: 0,
+      owner_id: '', // Change user_id to owner_id
     });
     setTimeToAdd('');
     setErrors({});
     onClose();
   };
 
-  const handleInputChange = (field: keyof TaskUpdate, value: string | TaskStatus | number) => {
+  const handleInputChange = (field: keyof Omit<TaskUpdate, 'project_id'>, value: string | TaskStatus | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -195,6 +217,34 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ isOpen, task, onClose }) 
                 <option value="done">Done</option>
               </select>
             </div>
+
+            {/* Assignee */}
+            {projectMembers && projectMembers.length > 0 && (
+              <div>
+                <label htmlFor="edit-assignee" className="block text-sm font-medium text-gray-700 mb-1">
+                  Assignee
+                </label>
+                <div className="relative">
+                  <select
+                    id="edit-assignee"
+                    className="input-field w-full pl-10"
+                    value={formData.owner_id || ''} // Change user_id to owner_id
+                    onChange={(e) => handleInputChange('owner_id', e.target.value)} // Change user_id to owner_id
+                    disabled={isLoading}
+                  >
+                    <option value="">Unassigned</option>
+                    {projectMembers && projectMembers.map((member: ProjectMember) => (
+                      <option key={member.user_id} value={member.user_id}>
+                        {member.user?.email || `User ${member.user_id.substring(0, 8)}`}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-4 w-4 text-gray-400" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Time Tracking */}
             <div className="border-t border-gray-200 pt-4">

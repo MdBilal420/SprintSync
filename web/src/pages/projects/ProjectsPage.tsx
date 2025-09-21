@@ -5,20 +5,22 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, Search, Users, Calendar, Filter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useProjectsController } from '../../controllers/projectsController';
 import { useUIController } from '../../controllers/uiController';
 import { ProjectCreationModal } from '../../components/projects/ProjectCreationModal';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
-import type { Project } from '../../types';
+import type { ProjectMember } from '../../types';
 
 const ProjectsPage: React.FC = () => {
+  const navigate = useNavigate();
   const {
     projects,
+    members,
     isLoading,
     error,
     loadProjects,
-    handleClearError,
   } = useProjectsController();
 
   const { showNotification } = useUIController();
@@ -43,6 +45,11 @@ const ProjectsPage: React.FC = () => {
     (project.description && project.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  // Navigate to project details page
+  const handleProjectClick = (projectId: string) => {
+    navigate(`/projects/${projectId}`);
+  };
+
   if (isLoading && (!projects || projects.length === 0)) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -50,6 +57,13 @@ const ProjectsPage: React.FC = () => {
       </div>
     );
   }
+
+  const projectMembers = filteredProjects.reduce((acc, val) => {
+    const mb = members.filter(m => m.project_id === val.id);
+    acc[val.id] = mb;
+    return acc;
+  }, {} as Record<string, ProjectMember[]>);
+
 
   return (
     <div className="space-y-6">
@@ -134,6 +148,7 @@ const ProjectsPage: React.FC = () => {
             <div
               key={project.id}
               className="card hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+              onClick={() => handleProjectClick(project.id)}
             >
               <div className="flex items-start justify-between mb-3">
                 <h3 className="text-lg font-medium text-gray-900 truncate">
@@ -159,7 +174,7 @@ const ProjectsPage: React.FC = () => {
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <div className="flex items-center">
                   <Users className="h-4 w-4 mr-1" />
-                  <span>0 members</span>
+                  <span>{projectMembers[project.id]?.length} members</span>
                 </div>
                 <span>Created {new Date(project.created_at).toLocaleDateString()}</span>
               </div>

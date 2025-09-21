@@ -139,8 +139,16 @@ export const getTask = async (taskId: string): Promise<Task> => {
   return response.data;
 };
 
-export const createTask = async (taskData: TaskCreate): Promise<Task> => {
-  const response: AxiosResponse<Task> = await api.post('/tasks/', taskData);
+export const createTask = async (taskData: TaskCreate, projectId?: string): Promise<Task> => {
+  // Extract owner_id from taskData if it exists
+  const { owner_id, ...taskCreateData } = taskData;
+  
+  // Build query parameters
+  const params: any = {};
+  if (projectId) params.project_id = projectId;
+  if (owner_id) params.owner_id = owner_id;
+  
+  const response: AxiosResponse<Task> = await api.post('/tasks/', taskCreateData, { params });
   return response.data;
 };
 
@@ -151,13 +159,6 @@ export const updateTask = async (taskId: string, taskData: TaskUpdate): Promise<
 
 export const deleteTask = async (taskId: string): Promise<void> => {
   await api.delete(`/tasks/${taskId}`);
-};
-
-export const updateTaskTime = async (taskId: string, additionalMinutes: number): Promise<Task> => {
-  const response: AxiosResponse<Task> = await api.patch(
-    `/tasks/${taskId}/time?minutes=${additionalMinutes}`
-  );
-  return response.data;
 };
 
 // AI endpoints
@@ -183,12 +184,20 @@ export const suggestTaskTitles = async (params: {
   return response.data;
 };
 
-// User management (admin only)
+// User management
 export const getUsers = async (params?: {
   skip?: number;
   limit?: number;
 }): Promise<PaginatedResponse<User>> => {
   const response: AxiosResponse<PaginatedResponse<User>> = await api.get('/users', { params });
+  return response.data;
+};
+
+export const getAccessibleUsers = async (params?: {
+  skip?: number;
+  limit?: number;
+}): Promise<User[]> => {
+  const response: AxiosResponse<User[]> = await api.get('/users/accessible', { params });
   return response.data;
 };
 
@@ -199,6 +208,12 @@ export const updateUser = async (userId: string, userData: Partial<User>): Promi
 
 export const deleteUser = async (userId: string): Promise<void> => {
   await api.delete(`/users/${userId}`);
+};
+
+// User profile (current user)
+export const updateUserProfile = async (userData: Partial<User>): Promise<User> => {
+  const response: AxiosResponse<User> = await api.patch('/users/profile', userData);
+  return response.data;
 };
 
 // Health check
