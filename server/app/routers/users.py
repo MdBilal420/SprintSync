@@ -54,6 +54,32 @@ async def get_user_profile(current_user: User = Depends(get_current_active_user)
     return current_user
 
 
+@router.get("/accessible", response_model=List[UserResponse])
+async def list_accessible_users(
+    skip: int = Query(0, ge=0, description="Number of users to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of users to return"),
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    List users that the current user has access to (based on shared projects).
+    Regular users can see other users they share projects with.
+    
+    Args:
+        skip: Number of users to skip for pagination
+        limit: Maximum number of users to return
+        current_user: Current authenticated user
+        db: Database session
+        
+    Returns:
+        List of accessible users
+    """
+    # For now, return all users (in a real implementation, this would filter based on shared projects)
+    # TODO: Implement proper filtering based on shared projects
+    users = db.query(User).offset(skip).limit(limit).all()
+    return users
+
+
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: UUID,
@@ -334,3 +360,4 @@ async def get_user_statistics(
         "admin_users": admin_users,
         "regular_users": regular_users
     }
+

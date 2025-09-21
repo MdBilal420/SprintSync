@@ -5,7 +5,7 @@
 
 import React, { type ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LogOut, User, CheckSquare, Home, Menu, X } from 'lucide-react';
+import { LogOut, User, CheckSquare, Home, Menu, X, Users } from 'lucide-react';
 import { useAuthController } from '../../controllers/authController.ts';
 
 interface LayoutProps {
@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="nav-container">
             {/* Logo and Brand */}
             <div className="nav-brand">
-              <Link to="/dashboard" className="flex items-center space-x-3">
+              <Link to="/projects" className="flex items-center space-x-3">
                 <div className="p-2 bg-blue-600 rounded-lg">
                   <CheckSquare className="h-6 w-6 text-white" />
                 </div>
@@ -52,13 +52,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               {/* Desktop Navigation Links */}
               <div className="hidden-mobile nav-links">
                 <Link
-                  to="/dashboard"
+                  to="/projects"
                   className={`nav-link ${
-                    isActive('/dashboard') ? 'nav-link-active' : ''
+                    isActive('/projects') ? 'nav-link-active' : ''
                   }`}
                 >
                   <Home className="h-4 w-4 mr-2 inline" />
-                  Dashboard
+                  Projects
                 </Link>
                 
                 <Link
@@ -69,6 +69,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <CheckSquare className="h-4 w-4 mr-2 inline" />
                   Tasks
+                </Link>
+                
+                <Link
+                  to="/members"
+                  className={`nav-link ${
+                    isActive('/members') ? 'nav-link-active' : ''
+                  }`}
+                >
+                  <Users className="h-4 w-4 mr-2 inline" />
+                  Members
                 </Link>
                 
                 <Link
@@ -142,14 +152,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="mobile-menu-content">
               <div className="space-y-1">
                 <Link
-                  to="/dashboard"
+                  to="/projects"
                   className={`nav-link block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive('/dashboard') ? 'nav-link-active bg-blue-50' : 'text-gray-700'
+                    isActive('/projects') ? 'nav-link-active bg-blue-50' : 'text-gray-700'
                   }`}
                   onClick={closeMobileMenu}
                 >
                   <Home className="h-4 w-4 mr-2 inline" />
-                  Dashboard
+                  Projects
                 </Link>
                 
                 <Link
@@ -161,6 +171,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <CheckSquare className="h-4 w-4 mr-2 inline" />
                   Tasks
+                </Link>
+                
+                <Link
+                  to="/members"
+                  className={`nav-link block px-3 py-2 rounded-md text-base font-medium ${
+                    isActive('/members') ? 'nav-link-active bg-blue-50' : 'text-gray-700'
+                  }`}
+                  onClick={closeMobileMenu}
+                >
+                  <Users className="h-4 w-4 mr-2 inline" />
+                  Members
                 </Link>
                 
                 <Link
