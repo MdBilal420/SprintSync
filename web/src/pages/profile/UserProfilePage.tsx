@@ -142,18 +142,6 @@ const UserProfilePage: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  
-                  {/* Description/Skills */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Skills & Expertise
-                    </label>
-                    <div className="text-gray-900">
-                      {user.description || (
-                        <span className="text-gray-500 italic">No skills added yet</span>
-                      )}
-                    </div>
-                  </div>
                 </div>
               </div>
               
@@ -184,6 +172,17 @@ const UserProfilePage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+    {/* Description/Skills */}
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+                Skills & Expertise
+            </label>
+            <div className="text-gray-900">
+                {user.description || (
+                <span className="text-gray-500 italic">No skills added yet</span>
+                )}
+            </div>
         </div>
       </div>
 
@@ -271,37 +270,6 @@ const UserProfilePage: React.FC = () => {
           </form>
         </div>
       )}
-
-      {/* Security Section */}
-      <div className="card">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Security</h2>
-        
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-gray-200 rounded-lg">
-            <div>
-              <h3 className="font-medium text-gray-900">Password</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                Last updated {getRelativeTime(user.created_at)}
-              </p>
-            </div>
-            <button className="btn-secondary text-sm">
-              Change Password
-            </button>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-gray-200 rounded-lg">
-            <div>
-              <h3 className="font-medium text-gray-900">Two-Factor Authentication</h3>
-              <p className="text-sm text-gray-500 mt-1">
-                Add an extra layer of security to your account
-              </p>
-            </div>
-            <button className="btn-secondary text-sm">
-              Enable
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
