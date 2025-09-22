@@ -4,7 +4,7 @@
  */
 
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import type { Project, ProjectCreate, ProjectUpdate, ProjectMember, ProjectMemberCreate, ProjectMemberUpdate, User } from '../../types/index.ts';
+import type { Project, ProjectCreate, ProjectUpdate, ProjectMember, ProjectMemberCreate, User } from '../../types/index.ts';
 import * as apiService from '../api';
 
 interface ProjectsState {

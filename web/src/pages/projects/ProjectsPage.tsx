@@ -34,7 +34,7 @@ const ProjectsPage: React.FC = () => {
     loadProjects();
   }, [loadProjects]);
 
-  const handleProjectCreated = (projectId: string) => {
+  const handleProjectCreated = () => {
     showNotification('success', 'Project created successfully');
     loadProjects(); // Refresh the projects list
   };

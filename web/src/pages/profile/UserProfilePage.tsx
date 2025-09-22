@@ -47,11 +47,10 @@ const UserProfilePage: React.FC = () => {
       // Get form values
       const form = e.target as HTMLFormElement;
       const formData = new FormData(form);
-      const displayName = formData.get('name') as string;
       const description = formData.get('description') as string;
       
       // Update user profile (current user)
-      const updatedUser = await apiService.updateUserProfile({
+      await apiService.updateUserProfile({
         description: description || undefined
       });
       

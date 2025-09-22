@@ -24,7 +24,7 @@ import type {
   ProjectCreate,
   ProjectUpdate,
   ProjectMemberCreate,
-  ProjectMemberUpdate,
+  // ProjectMemberUpdate,
 } from '../types/index.ts';
 
 // Custom hook for projects management

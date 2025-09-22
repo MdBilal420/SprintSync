@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Users, Search, Mail, Calendar, Shield, Crown, User, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, Search, Calendar, Shield, User, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuthController } from '../../controllers/authController';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import ErrorMessage from '../../components/common/ErrorMessage';

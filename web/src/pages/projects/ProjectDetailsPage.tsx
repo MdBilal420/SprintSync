@@ -39,7 +39,7 @@ const ProjectDetailsPage: React.FC = () => {
     error,
     loadProjectById,
     loadProjectMembers,
-    handleClearError,
+    // handleClearError,
   } = useProjectsController();
 
   const {

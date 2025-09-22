@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useProjectsController } from '../../controllers/projectsController';
 import ErrorMessage from '../common/ErrorMessage';
 import type { ProjectCreate } from '../../types';
@@ -15,7 +14,6 @@ export const ProjectCreationModal: React.FC<ProjectCreationModalProps> = ({
   onClose,
   onProjectCreated,
 }) => {
-  const dispatch = useDispatch();
   const { handleCreateProject } = useProjectsController();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');

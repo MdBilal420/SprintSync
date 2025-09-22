@@ -3,7 +3,7 @@
  * Manages AI-related state and operations
  */
 
-import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { AITaskSuggestion, TaskDescriptionRequest } from '../../types';
 import { checkAIStatus, suggestTaskDescription, suggestTaskTitles } from '../api';
 
