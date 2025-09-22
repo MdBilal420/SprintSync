@@ -251,7 +251,6 @@ const ProjectDetailsPage: React.FC = () => {
           members={members || []}
           onTaskStatusChange={handleTaskStatusChange}
           onTaskClick={handleTaskClick}
-          onAddTask={() => openCreateTaskModal(projectId)}
           onAddMember={handleAddMember}
         />
       )}
