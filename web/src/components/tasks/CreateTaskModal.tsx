@@ -4,12 +4,15 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { X, Wand2, Sparkles, Copy, Check, User } from 'lucide-react';
+import { X, Wand2, Sparkles, Copy, Check, User, Loader2 } from 'lucide-react';
 import { useTasksController } from '../../controllers/tasksController';
 import { useUIController } from '../../controllers/uiController';
 import { useAIController } from '../../controllers/aiController';
 import LoadingSpinner from '../common/LoadingSpinner';
 import type { TaskCreate, TaskDescriptionRequest } from '../../types';
+
+import { getAssigneeScore } from '../../utils/formatters';
+
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -39,6 +42,11 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
   const [showAISuggestion, setShowAISuggestion] = useState(false);
   const [aiContext, setAIContext] = useState('');
   const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
+  
+  // Add new state variables for assignee suggestions
+  const [isAssigneeLoading, setIsAssigneeLoading] = useState(false);
+  const [assigneeSuggestions, setAssigneeSuggestions] = useState<any>(null);
+  const [showAssigneeSuggestions, setShowAssigneeSuggestions] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Omit<TaskCreate, 'project_id'>> = {};
@@ -88,12 +96,16 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
   };
 
   const handleClose = () => {
-    setFormData({ title: '', description: '' });
+    setFormData({ title: '', description: '', owner_id: '' });
     setErrors({});
     setShowAISuggestion(false);
     setAIContext('');
     setCopiedItems(new Set());
     clearSuggestion();
+    // Reset assignee suggestion state
+    setIsAssigneeLoading(false);
+    setAssigneeSuggestions(null);
+    setShowAssigneeSuggestions(false);
     onClose();
   };
 
@@ -154,11 +166,46 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
     return members.filter((member: any) => (member.project_id === projectId));
   }, [projectId, members]);
 
+  // Update the getAssigneeScore handler
+  const handleGetAssigneeScore = async () => {
+    if (!formData.description) {
+      showNotification('error', 'Please enter a task description first');
+      return;
+    }
+
+    setIsAssigneeLoading(true);
+    setAssigneeSuggestions(null);
+    setShowAssigneeSuggestions(false);
+
+    try {
+      const suggestions = await getAssigneeScore(projectMembers, formData.description);
+      setAssigneeSuggestions(suggestions);
+      setShowAssigneeSuggestions(true);
+      showNotification('success', 'Assignee suggestions generated successfully!');
+    } catch (error: any) {
+      console.error('Error getting assignee suggestions:', error);
+      showNotification('error', error.message || 'Failed to get assignee suggestions');
+    } finally {
+      setIsAssigneeLoading(false);
+    }
+  };
+
+  // Function to assign task to a suggested member
+  const assignToMember = (memberEmail: string) => {
+    // Find the member by email and set as owner
+    const member = projectMembers.find((m: any) => m.user?.email === memberEmail);
+    if (member) {
+      setFormData(prev => ({ ...prev, owner_id: member.user_id }));
+      setShowAssigneeSuggestions(false);
+      showNotification('success', `Task assigned to ${member.user?.email || member.user_id}`);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Create New Task</h2>
@@ -208,6 +255,111 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
               />
               {errors.description && (
                 <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+              )}
+            </div>
+            
+            {/* Suggest Assignee Button */}
+            <div>
+              <button 
+                type="button" 
+                onClick={handleGetAssigneeScore}
+                disabled={isAssigneeLoading || !formData.description}
+                className={`w-full flex items-center justify-center px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
+                  isAssigneeLoading || !formData.description
+                    ? 'border-gray-300 text-gray-500 bg-gray-50'
+                    : 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
+                }`}
+              >
+                {isAssigneeLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <span>AI Analyzing Team Members...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
+                    <span>AI Suggest Assignee</span>
+                  </>
+                )}
+              </button>
+              
+              {/* Assignee Suggestions */}
+              {showAssigneeSuggestions && assigneeSuggestions && (
+                <div className="mt-3 p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-medium text-gray-900 flex items-center">
+                      <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
+                      AI Assignee Recommendations
+                    </h3>
+                    <button 
+                      type="button" 
+                      onClick={() => setShowAssigneeSuggestions(false)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {assigneeSuggestions.recommendations && assigneeSuggestions.recommendations.length > 0 ? (
+                      assigneeSuggestions.recommendations.map((rec: any, index: number) => (
+                        <div 
+                          key={index} 
+                          className="p-3 bg-white rounded border hover:bg-purple-50 cursor-pointer transition-colors shadow-sm"
+                          onClick={() => assignToMember(rec.member_email)}
+                        >
+                          <div className="flex justify-between">
+                            <div>
+                              <h4 className="font-medium text-gray-900">{rec.member_name}</h4>
+                              <p className="text-sm text-gray-600">{rec.member_email}</p>
+                            </div>
+                            <div className="flex items-center">
+                              <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                                {rec.similarity_score}% match
+                              </span>
+                            </div>
+                          </div>
+                          <div className="mt-2">
+                            <p className="text-sm text-gray-700">{rec.rationale}</p>
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              {rec.key_matches && rec.key_matches.map((match: string, matchIndex: number) => (
+                                <span 
+                                  key={matchIndex} 
+                                  className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded"
+                                >
+                                  {match}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-center py-2">No recommendations available</p>
+                    )}
+                  </div>
+                  
+                  {assigneeSuggestions.best_assignment && (
+                    <div className="mt-4 p-3 bg-gradient-to-r from-purple-100 to-indigo-100 border border-purple-200 rounded-lg">
+                      <h4 className="font-medium text-purple-800 flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center h-5 w-5 bg-purple-500 text-white text-xs rounded-full">✓</span>
+                        AI's Top Recommendation
+                      </h4>
+                      <div className="mt-2">
+                        <p className="text-sm text-purple-700">
+                          <span className="font-medium">{assigneeSuggestions.best_assignment.member_name}</span> - {assigneeSuggestions.best_assignment.reason}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => assignToMember(assigneeSuggestions.best_assignment.member_email)}
+                          className="mt-2 px-3 py-1 bg-purple-600 text-white text-sm rounded hover:bg-purple-700"
+                        >
+                          Assign to {assigneeSuggestions.best_assignment.member_name}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
