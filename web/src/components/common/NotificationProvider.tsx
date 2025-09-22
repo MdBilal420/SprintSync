@@ -51,11 +51,11 @@ const NotificationProvider: React.FC<NotificationProviderProps> = ({ children })
       {children}
       
       {/* Notifications Container */}
-      <div className="fixed top-4 right-4 z-50 space-y-4">
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 space-y-4 w-full max-w-md px-4">
         {notifications.map((notification: Notification) => (
           <div
             key={notification.id}
-            className={`max-w-sm w-full border rounded-lg shadow-lg p-4 ${getNotificationBgColor(notification.type)} transform transition-all duration-300 ease-in-out`}
+            className={`w-full border rounded-lg shadow-lg p-4 ${getNotificationBgColor(notification.type)} transform transition-all duration-300 ease-in-out`}
           >
             <div className="flex items-start">
               <div className="flex-shrink-0">

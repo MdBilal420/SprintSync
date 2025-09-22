@@ -172,10 +172,10 @@ const ProjectsPage: React.FC = () => {
               )}
               
               <div className="flex items-center justify-between text-xs text-gray-500">
-                <div className="flex items-center">
+                {projectMembers[project.id]?.length ?<div className="flex items-center">
                   <Users className="h-4 w-4 mr-1" />
                   <span>{projectMembers[project.id]?.length} members</span>
-                </div>
+                </div>:<div/>}
                 <span>Created {new Date(project.created_at).toLocaleDateString()}</span>
               </div>
             </div>
