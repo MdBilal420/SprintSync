@@ -56,6 +56,8 @@ const ProjectDetailsPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
+  const projectMembers = members.filter(member => member.project_id === projectId);
+
   // Load project and members on component mount
   useEffect(() => {
     if (projectId) {
@@ -227,7 +229,7 @@ const ProjectDetailsPage: React.FC = () => {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Members</p>
               <p className="text-2xl font-semibold text-gray-900">
-                {members?.length || 0}
+                {projectMembers?.length || 0}
               </p>
             </div>
           </div>
