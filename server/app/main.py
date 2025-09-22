@@ -4,6 +4,7 @@ SprintSync FastAPI Application
 Main entry point for the SprintSync backend API.
 """
 
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -19,11 +20,11 @@ from .core.logging_config import setup_logging
 # Import database initialization
 from .database.connection import create_tables, test_connection
 
+# Import database seeder
+from .database.seeder import seed_database_if_empty
+
 # Setup logging
 setup_logging()
-
-# Note: Database tables are now managed by Alembic migrations
-# Run 'alembic upgrade head' to create/update database schema
 
 app = FastAPI(
     title="SprintSync API",
@@ -67,7 +68,7 @@ app.add_middleware(LoggingMiddleware)
 # Configure CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origins=["http://localhost:3000", "http://localhost:5173","https://sprintsyncai.netlify.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -93,24 +94,37 @@ async def startup_event():
             # Create tables
             create_tables()
             print("✅ Database tables created successfully")
+            
+            # Import and use seeder
+            from .database.connection import get_db
+            from sqlalchemy.orm import Session
+            
+            # Get database session
+            db_gen = get_db()
+            db: Session = next(db_gen)
+            
+            try:
+                # Seed database if empty (only in development/demo)
+                seed_database_if_empty(db)
+            finally:
+                # Close database session
+                try:
+                    next(db_gen)
+                except StopIteration:
+                    pass
         else:
             print("❌ Database connection failed")
     except Exception as e:
         print(f"❌ Error during database initialization: {e}")
-        # Fallback: try to create tables anyway
-        try:
-            create_tables()
-            print("✅ Database tables created successfully (fallback)")
-        except Exception as fallback_e:
-            print(f"❌ Fallback database creation also failed: {fallback_e}")
 
 @app.get("/", tags=["Root"], summary="API Status", description="Get basic API information and status")
 async def root():
     """Get API status and basic information."""
+    environment = os.getenv("ENVIRONMENT", "development")
     return {
         "message": "SprintSync API is running", 
         "version": "0.1.0",
-        "environment": "development",
+        "environment": environment,
         "status": "Database migrations managed by Alembic",
         "documentation": "/docs",
         "openapi_schema": "/openapi.json"
@@ -135,9 +149,16 @@ async def health_check():
     except:
         db_status = "error"
         
+    environment = os.getenv("ENVIRONMENT", "development")
+    
+    # Check if seeding is enabled
+    from .database.seeder import should_seed_database
+    seed_status = "enabled" if should_seed_database() else "disabled"
+    
     return {
         "status": "healthy", 
-        "environment": "development",
+        "environment": environment,
+        "seeding": seed_status,
         "components": {
             "api": "operational",
             "database": db_status,
