@@ -28,6 +28,31 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  // Quick login functions
+  const handleAdminLogin = async () => {
+    clearAuthError();
+    try {
+      await handleLogin({ 
+        email: 'admin@example.com', 
+        password: 'admin123' 
+      });
+    } catch (err) {
+      // Error handling is managed by the controller
+    }
+  };
+
+  const handleMemberLogin = async () => {
+    clearAuthError();
+    try {
+      await handleLogin({ 
+        email: 'john@example.com', 
+        password: 'demo123' 
+      });
+    } catch (err) {
+      // Error handling is managed by the controller
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
@@ -117,6 +142,29 @@ const LoginPage: React.FC = () => {
               </button>
             </div>
           </form>
+          
+          {/* Quick Login Buttons */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-gray-600 text-sm text-center mb-4">Quick Login</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={handleAdminLogin}
+                disabled={isLoading}
+                className="btn-secondary text-sm py-2 px-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Login as Admin
+              </button>
+              <button
+                type="button"
+                onClick={handleMemberLogin}
+                disabled={isLoading}
+                className="btn-secondary text-sm py-2 px-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Login as Member
+              </button>
+            </div>
+          </div>
           
           <div className="mt-6 pt-6 border-t border-gray-200 text-center">
             <span className="text-gray-600 text-sm">
