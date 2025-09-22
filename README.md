@@ -6,6 +6,11 @@ A lean internal tool for AI consultancy engineers to log work, track time, and g
 
 🔗 [https://sprintsyncai.netlify.app/](https://sprintsyncai.netlify.app/)
 
+
+## Video Demo
+
+🔗 [https://sprintsyncai.netlify.app/](https://www.loom.com/share/4e0c8371640446e985c9aa06c1546726?sid=8616e123-523d-4bb7-848d-06848416f2f3)
+
 **Demo Credentials:**
 - Admin User: admin@example.com / admin123
 - Regular User: john@example.com / demo123
