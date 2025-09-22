@@ -9,7 +9,9 @@ A lean internal tool for AI consultancy engineers to log work, track time, and g
 
 ## Video Demo
 
-🔗 [https://sprintsyncai.netlify.app/](https://www.loom.com/share/4e0c8371640446e985c9aa06c1546726?sid=8616e123-523d-4bb7-848d-06848416f2f3)
+🔗 [Loom Video 1/](https://www.loom.com/share/4e0c8371640446e985c9aa06c1546726?sid=8616e123-523d-4bb7-848d-06848416f2f3)
+🔗 [Loom Video 2/](https://www.loom.com/share/4af5201b49a94d7098aca848386012df?sid=185359c8-2f42-49b8-bb08-b54f47232276)
+
 
 **Demo Credentials:**
 - Admin User: admin@example.com / admin123
@@ -19,7 +21,7 @@ A lean internal tool for AI consultancy engineers to log work, track time, and g
 
 - **Backend**: FastAPI + SQLAlchemy + PostgreSQL (Cloud SQL)
 - **Frontend**: React + Vite + TypeScript + Redux Toolkit
-- **Database**: PostgreSQL (Cloud SQL for production, SQLite for local development)
+- **Database**: PostgreSQL (SQLite)
 - **Deployment**: 
   - Frontend: Netlify
   - Backend: Google Cloud Platform (Cloud Run)
