@@ -264,26 +264,33 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
                 type="button" 
                 onClick={handleGetAssigneeScore}
                 disabled={isAssigneeLoading || !formData.description}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                className={`w-full flex items-center justify-center px-4 py-2 border rounded-md text-sm font-medium transition-colors ${
+                  isAssigneeLoading || !formData.description
+                    ? 'border-gray-300 text-gray-500 bg-gray-50'
+                    : 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
+                }`}
               >
                 {isAssigneeLoading ? (
                   <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Suggesting Assignee...</span>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    <span>AI Analyzing Team Members...</span>
                   </>
                 ) : (
                   <>
-                    <User className="h-4 w-4" />
-                    <span>Suggest Assignee</span>
+                    <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
+                    <span>AI Suggest Assignee</span>
                   </>
                 )}
               </button>
               
               {/* Assignee Suggestions */}
               {showAssigneeSuggestions && assigneeSuggestions && (
-                <div className="mt-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="mt-3 p-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg border border-purple-200">
                   <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-medium text-gray-900">Recommended Assignees</h3>
+                    <h3 className="font-medium text-gray-900 flex items-center">
+                      <Sparkles className="h-4 w-4 mr-2 text-purple-500" />
+                      AI Assignee Recommendations
+                    </h3>
                     <button 
                       type="button" 
                       onClick={() => setShowAssigneeSuggestions(false)}
@@ -298,7 +305,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
                       assigneeSuggestions.recommendations.map((rec: any, index: number) => (
                         <div 
                           key={index} 
-                          className="p-3 bg-white rounded border hover:bg-blue-50 cursor-pointer transition-colors"
+                          className="p-3 bg-white rounded border hover:bg-purple-50 cursor-pointer transition-colors shadow-sm"
                           onClick={() => assignToMember(rec.member_email)}
                         >
                           <div className="flex justify-between">
@@ -307,7 +314,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
                               <p className="text-sm text-gray-600">{rec.member_email}</p>
                             </div>
                             <div className="flex items-center">
-                              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                              <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
                                 {rec.similarity_score}% match
                               </span>
                             </div>
@@ -318,7 +325,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
                               {rec.key_matches && rec.key_matches.map((match: string, matchIndex: number) => (
                                 <span 
                                   key={matchIndex} 
-                                  className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
+                                  className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded"
                                 >
                                   {match}
                                 </span>
@@ -333,19 +340,19 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ isOpen, onClose, proj
                   </div>
                   
                   {assigneeSuggestions.best_assignment && (
-                    <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <h4 className="font-medium text-green-800 flex items-center gap-2">
-                        <span className="inline-flex items-center justify-center h-5 w-5 bg-green-500 text-white text-xs rounded-full">✓</span>
-                        Best Choice
+                    <div className="mt-4 p-3 bg-gradient-to-r from-purple-100 to-indigo-100 border border-purple-200 rounded-lg">
+                      <h4 className="font-medium text-purple-800 flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center h-5 w-5 bg-purple-500 text-white text-xs rounded-full">✓</span>
+                        AI's Top Recommendation
                       </h4>
                       <div className="mt-2">
-                        <p className="text-sm text-green-700">
+                        <p className="text-sm text-purple-700">
                           <span className="font-medium">{assigneeSuggestions.best_assignment.member_name}</span> - {assigneeSuggestions.best_assignment.reason}
                         </p>
                         <button
                           type="button"
                           onClick={() => assignToMember(assigneeSuggestions.best_assignment.member_email)}
-                          className="mt-2 px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                          className="mt-2 px-3 py-1 bg-purple-600 text-white text-sm rounded hover:bg-purple-700"
                         >
                           Assign to {assigneeSuggestions.best_assignment.member_name}
                         </button>

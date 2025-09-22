@@ -44,7 +44,7 @@ export const registerUser = createAsyncThunk(
   async (userData: UserCreate, { rejectWithValue }) => {
     try {
       // Register the user
-      const user = await apiService.register(userData);
+      await apiService.register(userData);
       
       // Small delay to ensure registration is fully processed
       await new Promise(resolve => setTimeout(resolve, 100));

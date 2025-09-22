@@ -85,3 +85,20 @@ src/
 ├── types/          # TypeScript interfaces and types
 └── utils/          # Utility functions
 ```
+
+## Deployment
+
+### Netlify Deployment
+
+1. Push your code to a GitHub repository
+2. Create a Netlify account at [netlify.com](https://netlify.com)
+3. Click "New site from Git" in your Netlify dashboard
+4. Connect your GitHub repository
+5. Configure the deployment settings:
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+6. Add environment variables in the Netlify UI:
+   - `VITE_API_URL` - Set to your backend API URL
+7. Deploy the site
+
+The included `netlify.toml` file contains the necessary configuration for deployment.

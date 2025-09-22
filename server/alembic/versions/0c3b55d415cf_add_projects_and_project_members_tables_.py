@@ -54,8 +54,8 @@ def upgrade() -> None:
     with op.batch_alter_table('tasks', schema=None) as batch_op:
         batch_op.add_column(sa.Column('project_id', sa.UUID(), nullable=True))
         batch_op.add_column(sa.Column('assigned_to_id', sa.UUID(), nullable=True))
-        batch_op.create_foreign_key(None, 'projects', ['project_id'], ['id'])
-        batch_op.create_foreign_key(None, 'users', ['assigned_to_id'], ['id'])
+        batch_op.create_foreign_key('fk_tasks_project_id', 'projects', ['project_id'], ['id'])
+        batch_op.create_foreign_key('fk_tasks_assigned_to_id', 'users', ['assigned_to_id'], ['id'])
     
     # ### end Alembic commands ###
 
@@ -66,8 +66,8 @@ def downgrade() -> None:
     
     # Remove columns from tasks table using batch mode for SQLite compatibility
     with op.batch_alter_table('tasks', schema=None) as batch_op:
-        batch_op.drop_constraint(None, type_='foreignkey')
-        batch_op.drop_constraint(None, type_='foreignkey')
+        batch_op.drop_constraint('fk_tasks_assigned_to_id', type_='foreignkey')
+        batch_op.drop_constraint('fk_tasks_project_id', type_='foreignkey')
         batch_op.drop_column('assigned_to_id')
         batch_op.drop_column('project_id')
     

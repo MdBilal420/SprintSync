@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import ErrorMessage from '../common/ErrorMessage';
+// import ErrorMessage from '../common/ErrorMessage';
 import { getUsers } from '../../models/api';
 import type { User } from '../../types';
 
 export const UserManagementPanel: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [newUserEmail, setNewUserEmail] = useState('');
-  const [isAdmin, setIsAdmin] = useState(false);
+  // const [error, setError] = useState<string | null>(null);
+  // const [newUserEmail, setNewUserEmail] = useState('');
+  // const [isAdmin, setIsAdmin] = useState(false);
 
   // Fetch users from API
   useEffect(() => {
@@ -24,9 +24,9 @@ export const UserManagementPanel: React.FC = () => {
         } else {
           setUsers([]);
         }
-        setError(null);
+        // setError(null);
       } catch (err) {
-        setError('Failed to fetch users');
+        // setError('Failed to fetch users');
         console.error('Error fetching users:', err);
         setUsers([]); // Ensure users is always an array
       } finally {
@@ -36,36 +36,6 @@ export const UserManagementPanel: React.FC = () => {
 
     fetchUsers();
   }, []);
-
-  const handleCreateUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Simple validation
-    if (!newUserEmail.includes('@')) {
-      setError('Please enter a valid email address');
-      return;
-    }
-    
-    // Check if user already exists
-    if (users.some(user => user.email === newUserEmail)) {
-      setError('User with this email already exists');
-      return;
-    }
-    
-    // In a real app, this would be an API call to create a user
-    // For now, we'll just add it to the local state
-    const newUser: User = {
-      id: (users.length + 1).toString(),
-      email: newUserEmail,
-      is_admin: isAdmin,
-      created_at: new Date().toISOString().split('T')[0],
-    };
-    
-    setUsers([...users, newUser]);
-    setNewUserEmail('');
-    setIsAdmin(false);
-    setError(null);
-  };
 
   const handleToggleAdmin = (userId: string) => {
     setUsers(users.map(user => 
@@ -79,7 +49,8 @@ export const UserManagementPanel: React.FC = () => {
     if (userToDelete?.is_admin) {
       const adminCount = users.filter(user => user.is_admin).length;
       if (adminCount <= 1) {
-        setError('Cannot delete the last admin user');
+        // setError('Cannot delete the last admin user');
+        console.error('Cannot delete the last admin user');
         return;
       }
     }

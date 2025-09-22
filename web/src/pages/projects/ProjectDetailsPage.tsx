@@ -9,12 +9,10 @@ import {
   Plus, 
   Users, 
   Calendar, 
-  CheckSquare2, 
-  Clock, 
+  CheckSquare2,  
   CheckCircle2,
   MoreVertical,
   Edit3,
-  Trash2,
   UserPlus,
   Crown,
   Shield,
@@ -41,7 +39,7 @@ const ProjectDetailsPage: React.FC = () => {
     error,
     loadProjectById,
     loadProjectMembers,
-    handleClearError,
+    // handleClearError,
   } = useProjectsController();
 
   const {

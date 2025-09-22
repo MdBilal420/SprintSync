@@ -7,7 +7,6 @@ import React, { useMemo, useState } from 'react';
 import { 
   User, 
   MoreHorizontal, 
-  Plus,
   Crown,
   Shield,
   User as UserIcon

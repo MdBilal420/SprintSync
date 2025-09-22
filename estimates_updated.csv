@@ -1,0 +1,61 @@
+Story,Task,Estimate min (hr),Estimate max (hr),Actual,Comment
+Setup,Project structure creation,1,2,1.5,Created server/web folders with clean architecture
+Setup,Time estimation and planning,0.5,1,0.5,Created comprehensive estimates.csv file
+Setup,Git repository initialization,0.5,1,0.5,Initial commit with meaningful structure
+Backend Foundation,FastAPI basic setup and configuration,1.5,3,2.5,FastAPI v0.116.2 with CORS and auto-docs complete
+Backend Foundation,SQLAlchemy models (User and Task),2,4,3.0,User and Task models with relationships and schemas complete
+Backend Foundation,Alembic migrations setup,1.5,3,2.0,Alembic configured with migrations and utility script
+Backend Foundation,Cloud SQL instance and connection,2,4,2.5,"GCP Cloud SQL PostgreSQL instance created with development and production configurations"
+Backend Authentication,JWT authentication system,3,5,3.5,"Complete JWT authentication with registration, login, and protected endpoints"
+Backend Authentication,Password hashing and validation,1,2,,Secure password handling with bcrypt
+Backend Authentication,User CRUD endpoints,2,4,2.0,"Complete user management with profile, admin controls, and statistics"
+Backend Core,Task CRUD endpoints,3,5,2.5,"Full task lifecycle with status transitions, time tracking, and advanced filtering"
+Backend Core,API documentation (Swagger),0.5,1.5,0.5,"Enhanced FastAPI auto-generated docs with comprehensive descriptions and examples"
+Backend Core,Structured logging implementation,1.5,3,,Request/response logging with error tracking
+AI Integration,Choose AI feature (description vs planning),0.5,1,0.5,"Selected task description generation over daily planning for immediate engineering value"
+AI Integration,OpenAI API integration,2,4,2.5,"Complete OpenAI integration with client configuration and error handling"
+AI Integration,AI suggest endpoint implementation,1.5,3,1.5,"Task description generation endpoint with comprehensive fallback mechanisms"
+AI Integration,Fallback mechanism for AI failures,1,2,0.5,"Graceful degradation when AI unavailable with intelligent fallback responses"
+Frontend Foundation,React + Vite project setup,1.5,3,,Initialize with TypeScript and routing
+Frontend Foundation,Project structure and folder organization,0.5,1.5,,Components services hooks organization
+Frontend Foundation,API service layer setup,1.5,3,,HTTP client with authentication handling
+Frontend Authentication,Login and register forms,2,4,,Form validation and error handling
+Frontend Authentication,Authentication flow and state management,2,3.5,,JWT token storage and user state
+Frontend Core,Task list view with status updates,3,5,,Interactive task list with inline editing
+Frontend Core,Task create/edit forms and modals,2,4,,Form components with validation
+Frontend Core,AI integration UI components,2,3.5,,AI suggestion button and response display
+Frontend Styling,Responsive CSS and basic styling,2,4,,Clean mobile-friendly interface
+Frontend Styling,UI polish and user experience,1.5,3,,Final styling touches and UX improvements
+Project Management,Project model and database schema,1.5,2.5,2.0,Project and ProjectMember models with relationships
+Project Management,Project CRUD API endpoints,2,3,2.5,Complete API for project management with proper validation
+Project Management,Project membership API endpoints,1.5,2.5,1.5,Endpoints for adding/removing members and managing roles
+Project Management,Database migrations for new tables,1,1.5,1.0,Alembic migrations for projects and project_members tables
+Project Management,Enhanced task model with project relationships,1,2,1.5,Added project_id and owner_id foreign keys to tasks
+Permissions,Role-based access control system,2,3,2.5,Implemented OWNER, ADMIN, MEMBER roles with appropriate permissions
+Permissions,Project-level permission validation,1.5,2.5,2.0,Security checks for project operations based on user roles
+Permissions,Task visibility rules implementation,1,2,1.0,Context-aware task visibility based on project membership
+Frontend - Projects,Projects page implementation,2,3,2.5,Main project dashboard with search and filtering
+Frontend - Projects,Project details page,2.5,4,3.0,Project overview with stats and task management
+Frontend - Projects,Project creation modal,1,1.5,1.0,UI for creating new projects with validation
+Frontend - Projects,Member management modal,1.5,2.5,2.0,Interface for adding/removing project members
+Frontend - Projects,Project Kanban board,2,3.5,3.0,Interactive task board with drag-and-drop functionality
+Frontend - Tasks,Enhanced task forms with assignment,1.5,2.5,2.0,Task creation/editing with assignee selection
+Frontend - Tasks,Task assignment modal,1,1.5,1.0,UI for assigning tasks to team members
+Frontend - Admin,Admin dashboard implementation,2,3,2.5,System-wide administration panel with analytics
+Frontend - Admin,User management panel,1.5,2.5,2.0,Interface for managing users and their roles
+Frontend - Admin,Project analytics panel,1.5,2,1.5,Cross-project analytics and reporting features
+Frontend - Components,Reusable project components,1,2,1.5,Shared components for project UI elements
+DevOps,Docker configuration (Dockerfile + compose),1.5,3,,Containerization for both services
+DevOps,GCP deployment configuration,2,4,,Cloud Run setup with environment variables
+DevOps,Environment variables and secrets,1,2.5,,Secure configuration management
+Testing - Project Features,Project feature testing,2,3,2.5,Comprehensive testing of project and membership functionality
+Testing - Permissions,Permission system validation,1.5,2.5,2.0,Thorough testing of role-based access controls
+Testing,Database seeding with demo data,1,2,,Sample users and tasks for demonstration
+Testing,End-to-end testing and bug fixes,3,6,,Full application testing and issue resolution
+Testing,Production deployment and validation,1.5,3,,Deploy to GCP and verify functionality
+Documentation,Project collaboration documentation,1,1.5,1.0,Updated documentation for team features
+Documentation,README with setup instructions,1.5,3,,Comprehensive documentation with live URL
+Documentation,Update time estimates with actuals,0.5,1,,Compare estimated vs actual time spent
+Documentation,Demo video creation and editing,2,4,,5-minute video covering app demo and code tour
+Final,Final testing and polish,1.5,3,,Last-minute fixes and improvements
+Total Hours,Min: 60,Max: 100,,Conservative estimates with realistic ranges for uncertainty

@@ -61,15 +61,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   Projects
                 </Link>
                 
-                <Link
-                  to="/tasks"
-                  className={`nav-link ${
-                    isActive('/tasks') ? 'nav-link-active' : ''
-                  }`}
-                >
-                  <CheckSquare className="h-4 w-4 mr-2 inline" />
-                  Tasks
-                </Link>
+                {/* Tasks link removed as per user request */}
                 
                 <Link
                   to="/members"
@@ -162,16 +154,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   Projects
                 </Link>
                 
-                <Link
-                  to="/tasks"
-                  className={`nav-link block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive('/tasks') ? 'nav-link-active bg-blue-50' : 'text-gray-700'
-                  }`}
-                  onClick={closeMobileMenu}
-                >
-                  <CheckSquare className="h-4 w-4 mr-2 inline" />
-                  Tasks
-                </Link>
+                {/* Tasks link removed as per user request */}
                 
                 <Link
                   to="/members"

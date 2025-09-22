@@ -111,8 +111,8 @@ export const AdminDashboardPage: React.FC = () => {
                         </div>
                         <div className="mt-1 flex items-center text-sm text-gray-500">
                           <span>Project ID: {task.project_id}</span>
-                          {task.assigned_to_id && (
-                            <span className="ml-2">Assigned to: {task.assigned_to_id}</span>
+                          {task.owner_id && (
+                            <span className="ml-2">Assigned to: {task.owner_id}</span>
                           )}
                         </div>
                       </div>
