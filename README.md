@@ -13,6 +13,9 @@ A lean internal tool for AI consultancy engineers to log work, track time, and g
 🔗 [Loom Video 2/](https://www.loom.com/share/4af5201b49a94d7098aca848386012df?sid=185359c8-2f42-49b8-bb08-b54f47232276)
 
 
+### API Docs
+ 🔗 [https://sprintsync-backend-mvtgfeo4pa-uc.a.run.app/docs](https://sprintsync-backend-mvtgfeo4pa-uc.a.run.app/docs)
+
 **Demo Credentials:**
 - Admin User: admin@example.com / admin123
 - Regular User: john@example.com / demo123
